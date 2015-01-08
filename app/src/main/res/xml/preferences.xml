@@ -1,0 +1,63 @@
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Background Color">
+        <SeekBarPreference
+            android:key="R_background_preference"
+            android:id="@+id/R_background"
+            android:title="Red"
+            android:max="256"
+            android:defaultValue="0" />
+        <SeekBarPreference
+            android:key="G_background_preference"
+            android:id="@+id/G_background"
+            android:title="Green"
+            android:max="256"
+            android:defaultValue="0" />
+        <SeekBarPreference
+            android:key="B_background_preference"
+            android:id="@+id/B_background"
+            android:title="Blue"
+            android:max="256"
+            android:defaultValue="0" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Font Color">
+
+        <SeekBarPreference
+            android:key="R_font_preference"
+            android:id="@+id/R_font"
+            android:title="Red"
+            android:max="256"
+            android:defaultValue="0" />
+        <SeekBarPreference
+            android:key="G_font_preference"
+            android:id="@+id/G_font"
+            android:title="Green"
+            android:max="256"
+            android:defaultValue="0" />
+        <SeekBarPreference
+            android:key="B_font_preference"
+            android:id="@+id/B_font"
+            android:title="Blue"
+            android:max="256"
+            android:defaultValue="0" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Font Type">
+
+        <ListPreference
+            android:key="type_font_preference"
+            android:dialogTitle="Console Font"
+            android:id="@+id/console_font"
+            android:entries="@array/prefSections"
+            android:entryValues="@array/prefSectionsValues"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
