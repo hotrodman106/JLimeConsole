@@ -55,12 +55,12 @@ public class MainActivity extends ActionBarActivity{
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        switch (item.getItemId()) {
-            case R.id.new_game:
-               System.out.println("OI Pressed!");
+        switch (id) {
+            case R.id.batchEdit:
+                setContentView(R.layout.fragment_secondary);
                 return true;
-            case R.id.help:
-                System.out.println("OI2 Pressed!");
+            case R.id.consoleView:
+                setContentView(R.layout.fragment_main);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
