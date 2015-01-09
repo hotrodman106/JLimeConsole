@@ -1,0 +1,107 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.app.AlertDialog;
+import android.app.ListActivity;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.Environment;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public final class MainBrowserActivity extends ListActivity {
+    private List<String> items2 = null;
+    public static final String settingsPREFS = "settings";
+
+    public void onCreate(Bundle icicle) {
+        super.onCreate(icicle);
+        setContentView(R.layout.activity_main_browser);
+        getFiles(new File(Environment.getExternalStorageDirectory().getAbsolutePath()).listFiles());
+        TextView test = (TextView) findViewById(R.id.test);
+        test.setText("Selected Directory: " + Environment.getExternalStorageDirectory().getAbsolutePath());
+    }
+
+   private String fileDir;
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id){
+        int selectedRow = (int)id;
+        if(selectedRow == 0){
+            getFiles(new File(Environment.getExternalStorageDirectory().getAbsolutePath()).listFiles());
+        }else{
+            File file = new File(items2.get(selectedRow));
+            if(file.isDirectory()){
+                getFiles(file.listFiles());
+                TextView test = (TextView) findViewById(R.id.test);
+                test.setText("Selected Directory: " + file.toString());
+                fileDir = file.toString();
+            }else{
+                 new AlertDialog.Builder(this)
+                .setTitle("This file is not a directory")
+                 .setNeutralButton("OK", new DialogInterface.OnClickListener(){
+                     public void onClick(DialogInterface dialog, int button){
+                         //do nothing
+                     }
+                 })
+                 .show();
+            }
+        }
+    }
+
+
+    private void getFiles(File[] files){
+        items2 = new ArrayList<String>();
+        items2.add(getString(R.string.goto_root));
+        for(File file : files){
+            items2.add(file.getPath());
+        }
+        ArrayAdapter<String> fileList = new ArrayAdapter<String>(this,R.layout.file_list_row, items2);
+        setListAdapter(fileList);
+    }
+
+    public void cancel(View v){
+    	Intent launchactivity= new Intent(MainBrowserActivity.this,MainActivity.class);
+	    startActivity(launchactivity);
+	    SharedPreferences settings = getSharedPreferences(settingsPREFS, 0);
+	    if(settings.getBoolean("showAnimations", true) == true){
+		    overridePendingTransition(R.anim.right_in, R.anim.left_out);
+		    }
+    }
+
+    public void saveFile(View v){
+        TextView filenameinput = (TextView) findViewById(R.id.filenameinput);
+        String dirFix = fileDir + "/";
+        PrintWriter writer;
+	    SharedPreferences settings = getSharedPreferences(settingsPREFS, 0);
+		try {
+			if(settings.getString("fileType", ".html").equals("")){
+				writer = new PrintWriter(dirFix + filenameinput.getText().toString() + ".html");
+				writer.println(MainActivity.Typed);
+				writer.close();
+				Toast.makeText(MainBrowserActivity.this, "Saved to " + dirFix + filenameinput.getText().toString() + ".html", Toast.LENGTH_SHORT).show();
+			}else{
+				writer = new PrintWriter(dirFix + filenameinput.getText().toString() + settings.getString("fileType", ".html"));
+				writer.println(MainActivity.Typed);
+				writer.close();
+				Toast.makeText(MainBrowserActivity.this, "Saved to " + dirFix + filenameinput.getText().toString() + settings.getString("fileType", ".html"), Toast.LENGTH_SHORT).show();
+			}
+			Intent launchactivity= new Intent(MainBrowserActivity.this,MainActivity.class);
+		    startActivity(launchactivity);
+		    if(settings.getBoolean("showAnimations", true) == true){
+			    overridePendingTransition(R.anim.right_in, R.anim.left_out);
+			    }
+		} catch (FileNotFoundException e) {
+			Toast.makeText(MainBrowserActivity.this, e.toString(), Toast.LENGTH_LONG).show();
+		}
+
+   }
+
+}
