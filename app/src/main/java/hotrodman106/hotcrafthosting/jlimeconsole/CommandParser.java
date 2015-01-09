@@ -145,27 +145,27 @@ public class CommandParser {
                         System.out.println("Processing char: "+y);
                         switch (y) {
                             case '(':
-                                if(++depth != 1) {
+                                if (++depth != 1) {
                                     temp += y;
                                 }
                                 break;
                             case ')':
-                                if(depth-- != 1){
+                                if (depth-- != 1) {
                                     temp += y;
                                 } else {
-                                    if(onCondition2){
+                                    if (onCondition2) {
                                         condition2.put(temp);
-                                        System.out.println("Put command "+temp+" in condition 2");
+                                        System.out.println("Put command " + temp + " in condition 2");
                                         temp = "";
                                     } else {
                                         condition1.put(temp);
-                                        System.out.println("Put command "+temp+" in condition 1");
+                                        System.out.println("Put command " + temp + " in condition 1");
                                         temp = "";
                                     }
                                 }
                                 break;
                             case ',':
-                                if(depth == 0){
+                                if (depth == 0) {
                                     onCondition2 = true;
                                     System.out.println("Switched condition");
                                 } else {
@@ -173,15 +173,18 @@ public class CommandParser {
                                 }
                                 break;
                             case '\\':
-                                if(cmd.charAt(x+1) == '&' && depth == 1){
-                                    temp += '&';
-                                    escape = true;
+                                if(!escape){
+                                    if (depth == 1) {
+                                        escape = true;
+                                    } else {
+                                        temp += y;
+                                    }
                                 } else {
                                     temp += y;
                                 }
                                 break;
                             case '&':
-                                if(!escape){
+                                if(!escape && depth == 1){
                                     if(onCondition2){
                                         condition2.put(temp);
                                         temp = "";
@@ -191,6 +194,7 @@ public class CommandParser {
                                     }
                                 } else {
                                     escape = false;
+                                    temp += y;
                                 }
                                 break;
                             default:
