@@ -49,7 +49,7 @@ public class CommandParser {
                         + "/gettime:[date String]    Outputs the date/time" + r
                         + "/random:[Integer]     Outputs a random number up to the value specified" + r
                         + "/loop:[Integer],[Command]     Loops a command a set number of times" + r
-                        + "/if:[Integer],[Integer],[<,>,=,<=,>=],[Command]      Checks if a statement is true and, if so, runs a command" + r
+                        + "/if:[Integer],[Integer],[<,>,=,<=,>=],([True Command]),([False Command])      Checks if a statement is true and, if so, runs a command" + r
                         + "/for:[Integer],[Integer],[Integer],[Command]     Loops a command for a set number of times in certain increments" + r);
                 break;
             case "/clear":

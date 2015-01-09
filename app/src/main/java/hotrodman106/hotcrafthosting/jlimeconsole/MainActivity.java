@@ -4,11 +4,13 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources.Theme;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -25,6 +27,7 @@ import android.view.View.OnKeyListener;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
+import java.text.AttributedCharacterIterator;
 
 
 public class MainActivity extends ActionBarActivity{
@@ -40,15 +43,7 @@ public class MainActivity extends ActionBarActivity{
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
-        }else{
-            console.setText(savedInstanceState.getString("consoleReadout"));
-    }}
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        // Save the user's current game state
-        savedInstanceState.putString("consoleReadout", console.getText().toString());
-        // Always call the superclass so it can save the view hierarchy state
-        super.onSaveInstanceState(savedInstanceState);
+        }
     }
 
 
@@ -68,11 +63,13 @@ public class MainActivity extends ActionBarActivity{
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.batchEdit:
-                setContentView(R.layout.fragment_secondary);
+            case R.id.limeEdit:
+                Intent launchactivity= new Intent(MainActivity.this,EditorClass.class);
+                startActivity(launchactivity);
                 return true;
-            case R.id.consoleView:
-                setContentView(R.layout.fragment_main);
+            case R.id.settings:
+                Intent launchactivity2 = new Intent(MainActivity.this,SettingsActivity.class);
+                startActivity(launchactivity2);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -128,18 +125,7 @@ public class MainActivity extends ActionBarActivity{
             input.setText("");
         }
     }
-        public void run (View view){
-            MultiCommand cmd = new MultiCommand();
-            EditText batchinput = (EditText) findViewById(R.id.in);
-            String[] lines = batchinput.getText().toString().split(System.getProperty("line.separator"));
-            for(int x = 0; x < lines.length; x++){
-                cmd.put(lines[x]);
-            }
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            transaction.addToBackStack(null); // this is needed for the above code to work
-            transaction.commit();
-            cmd.run(console);
-        }
+
     }
 
 
