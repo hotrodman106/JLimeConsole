@@ -1,5 +1,6 @@
 package hotrodman106.hotcrafthosting.jlimeconsole;
 
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -110,13 +111,17 @@ public class MainActivity extends ActionBarActivity{
 
 
     public static void submit(View view) {
-        if (!input.getText().toString().equals("")){
+        if (!input.getText().toString().equals("")) {
             CommandParser.parseInput(input.getText().toString(), console, view);
             input.setText("");
+        }
     }
+        public void run (View view){
+           // setContentView(R.layout.fragment_main);
+        }
     }
 
 
-}
+
 
 
