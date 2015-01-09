@@ -1,5 +1,6 @@
 package hotrodman106.hotcrafthosting.jlimeconsole;
 
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,6 +24,8 @@ import android.widget.EditText;
 import android.view.View.OnKeyListener;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+
 
 public class MainActivity extends ActionBarActivity{
     public static EditText console;
@@ -32,12 +35,20 @@ public class MainActivity extends ActionBarActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
-        }
-
+        }else{
+            console.setText(savedInstanceState.getString("consoleReadout"));
+    }}
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the user's current game state
+        savedInstanceState.putString("consoleReadout", console.getText().toString());
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
     }
 
 
@@ -110,6 +121,7 @@ public class MainActivity extends ActionBarActivity{
     }
 
 
+
     public static void submit(View view) {
         if (!input.getText().toString().equals("")) {
             CommandParser.parseInput(input.getText().toString(), console, view);
@@ -117,7 +129,16 @@ public class MainActivity extends ActionBarActivity{
         }
     }
         public void run (View view){
-           // setContentView(R.layout.fragment_main);
+            MultiCommand cmd = new MultiCommand();
+            EditText batchinput = (EditText) findViewById(R.id.in);
+            String[] lines = batchinput.getText().toString().split(System.getProperty("line.separator"));
+            for(int x = 0; x < lines.length; x++){
+                cmd.put(lines[x]);
+            }
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.addToBackStack(null); // this is needed for the above code to work
+            transaction.commit();
+            cmd.run(console);
         }
     }
 
