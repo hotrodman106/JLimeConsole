@@ -4,7 +4,7 @@
     <string name="app_name">Java Lime Console</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="startup">Java Lime Console \nVersion 3.1 Alpha \nType /help for a command list \n</string>
+    <string name="startup">Java Lime Console \nVersion 4.2 Alpha \nType /help for a command list \n</string>
 
 
 </resources>
