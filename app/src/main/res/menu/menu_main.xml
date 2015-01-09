@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
     <item android:id="@+id/batchEdit"
         android:icon="@drawable/ic_launcher"
-        android:title="Batch edit" />
+        android:title="Batch Edit" />
     <item android:id="@+id/consoleView"
         android:icon="@drawable/ic_launcher"
-        android:title="Console view" />
+        android:title="Console View" />
 </menu>
