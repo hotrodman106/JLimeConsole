@@ -4,8 +4,8 @@
 
     <!-- Start Permissions -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!-- End Permissions -->
 
+    <!-- End Permissions -->
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -22,8 +22,23 @@
             android:theme="@android:style/Theme.Black.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
+        <activity
+            android:name=".editor"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_editor"
+            android:theme="@style/FullscreenTheme" >
+        </activity>
+        <activity
+            android:name=".EditorClass"
+            android:label="@string/title_activity_editor_class" >
         </activity>
     </application>
 

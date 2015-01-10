@@ -1,13 +1,16 @@
 package hotrodman106.hotcrafthosting.jlimeconsole;
 
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources.Theme;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -23,6 +26,9 @@ import android.widget.EditText;
 import android.view.View.OnKeyListener;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.text.AttributedCharacterIterator;
+
 
 public class MainActivity extends ActionBarActivity{
     public static EditText console;
@@ -32,12 +38,12 @@ public class MainActivity extends ActionBarActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
-
     }
 
 
@@ -57,11 +63,13 @@ public class MainActivity extends ActionBarActivity{
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.batchEdit:
-                setContentView(R.layout.fragment_secondary);
+            case R.id.limeEdit:
+                Intent launchactivity= new Intent(MainActivity.this,EditorClass.class);
+                startActivity(launchactivity);
                 return true;
-            case R.id.consoleView:
-                setContentView(R.layout.fragment_main);
+            case R.id.settings:
+                Intent launchactivity2 = new Intent(MainActivity.this,SettingsActivity.class);
+                startActivity(launchactivity2);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -110,15 +118,14 @@ public class MainActivity extends ActionBarActivity{
     }
 
 
+
     public static void submit(View view) {
         if (!input.getText().toString().equals("")) {
             CommandParser.parseInput(input.getText().toString(), console, view);
             input.setText("");
         }
     }
-        public void run (View view){
-           // setContentView(R.layout.fragment_main);
-        }
+
     }
 
 
