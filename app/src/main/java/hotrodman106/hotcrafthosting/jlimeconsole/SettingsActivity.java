@@ -2,7 +2,10 @@ package hotrodman106.hotcrafthosting.jlimeconsole;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -11,11 +14,11 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.widget.SeekBar;
 
 
 import java.util.List;
@@ -57,22 +60,9 @@ public class SettingsActivity extends PreferenceActivity {
         if (!isSimplePreferences(this)) {
             return;
         }
-
-        // In the simplified UI, fragments are not used at all and we instead
-        // use the older PreferenceActivity APIs.
-
-        // Add 'general' preferences.
         addPreferencesFromResource(R.xml.pref_general);
-
-
-        // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
-        // their values. When their values change, their summaries are updated
-        // to reflect the new value, per the Android Design guidelines.
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean onIsMultiPane() {
         return isXLargeTablet(this) && !isSimplePreferences(this);
@@ -112,6 +102,25 @@ public class SettingsActivity extends PreferenceActivity {
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
+
+    @Override
+    public void onBackPressed() {
+        final SeekBar sk = (SeekBar) findViewById(R.id.R_background);
+        final SeekBar sk2 = (SeekBar) findViewById(R.id.G_background);
+        final SeekBar sk3 = (SeekBar) findViewById(R.id.B_background);
+        final SeekBar sk4 = (SeekBar) findViewById(R.id.R_font);
+        final SeekBar sk5 = (SeekBar) findViewById(R.id.G_font);
+        final SeekBar sk6 = (SeekBar) findViewById(R.id.B_font);
+
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        int rB = sharedPrefs.getInt("R_background_preference", 0);
+        int gB = sharedPrefs.getInt("G_background_preference", 0);
+        int bB = sharedPrefs.getInt("B_background_preference", 0);
+        MainActivity.console.getBackground().setColorFilter(Color.rgb(rB,gB,bB), PorterDuff.Mode.ADD);
+        super.onBackPressed();
+    }
+
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
