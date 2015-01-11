@@ -40,6 +40,10 @@
             android:name=".EditorClass"
             android:label="@string/title_activity_editor_class" >
         </activity>
+        <activity
+            android:name=".FileChooser"
+            android:label="File Chooser" >
+            </activity>
     </application>
 
 </manifest>
