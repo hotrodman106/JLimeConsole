@@ -5,6 +5,8 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources.Theme;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -90,7 +92,6 @@ public class MainActivity extends ActionBarActivity{
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             console = (EditText) rootView.findViewById(R.id.editText);
             input = (EditText) rootView.findViewById(R.id.editText2);
-
             input.setOnKeyListener(new OnKeyListener()
             {
                 public boolean onKey(View v, int keyCode, KeyEvent event)
