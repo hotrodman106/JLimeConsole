@@ -60,6 +60,7 @@ public class EditorClass extends ActionBarActivity{
         //XXX
         //Tis a little sketchy
         super.onBackPressed();
+        overridePendingTransition(R.anim.left_in, R.anim.right_out);
         cmd.run(MainActivity.console);
     }
 

@@ -13,15 +13,16 @@ import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-
 public class MainActivity extends ActionBarActivity{
     public static EditText console;
     public static EditText input;
+    public static Intent i;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        i = new Intent(MainActivity.this,EditorClass.class);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -50,10 +51,12 @@ public class MainActivity extends ActionBarActivity{
             case R.id.limeEdit:
                 Intent launchactivity= new Intent(MainActivity.this,EditorClass.class);
                 startActivity(launchactivity);
+                overridePendingTransition(R.anim.right_in, R.anim.left_out);
                 return true;
             case R.id.settings:
                 Intent launchactivity2 = new Intent(MainActivity.this,SettingsActivity.class);
                 startActivity(launchactivity2);
+                overridePendingTransition(R.anim.left_in, R.anim.right_out);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -73,7 +76,6 @@ public class MainActivity extends ActionBarActivity{
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             console = (EditText) rootView.findViewById(R.id.editText);
             input = (EditText) rootView.findViewById(R.id.editText2);
-
             input.setOnKeyListener(new OnKeyListener()
             {
                 public boolean onKey(View v, int keyCode, KeyEvent event)
