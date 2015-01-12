@@ -36,7 +36,7 @@ import java.util.List;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends PreferenceActivity {
-    public Context a;
+
     /**
      * Determines whether to always show the simplified settings UI, where
      * settings are presented in a single list. When false, settings are shown
@@ -63,7 +63,6 @@ public class SettingsActivity extends PreferenceActivity {
             return;
         }
         addPreferencesFromResource(R.xml.pref_general);
-       a = getApplicationContext();
     }
 
     @Override
@@ -105,15 +104,13 @@ public class SettingsActivity extends PreferenceActivity {
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
-
-    @Override
-    public void onBackPressed() {
+    public void commitSettings(){
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         int rB = sharedPrefs.getInt("R_background_preference", 0);
         int gB = sharedPrefs.getInt("G_background_preference", 0);
         int bB = sharedPrefs.getInt("B_background_preference", 0);
         int rF = sharedPrefs.getInt("R_font_preference", 0);
-        int gF = sharedPrefs.getInt("G_font_preference", 0);
+        int gF = sharedPrefs.getInt("G_font_preference", 255);
         int bF = sharedPrefs.getInt("B_font_preference", 0);
         String font = sharedPrefs.getString("type_font_preference", "1");
 
@@ -138,7 +135,11 @@ public class SettingsActivity extends PreferenceActivity {
             default:
         }
 
+    }
 
+    @Override
+    public void onBackPressed() {
+        commitSettings();
         super.onBackPressed();
     }
 

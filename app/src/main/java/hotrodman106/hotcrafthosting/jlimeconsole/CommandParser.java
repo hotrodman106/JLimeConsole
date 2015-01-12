@@ -3,9 +3,15 @@ package hotrodman106.hotcrafthosting.jlimeconsole;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
+import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.support.v7.app.ActionBarActivity;
@@ -24,8 +30,10 @@ import android.widget.EditText;
 /**
  * Created by hotrodman106 on 1/1/2015.
  */
-public class CommandParser {
+public class CommandParser extends Activity {
     private static final String r = "\n";
+
+
 
     /**
      * @param input   The input String to be parsed
@@ -34,6 +42,9 @@ public class CommandParser {
      */
     public static void parseInput(String input, EditText console, View view) {
         switch (input) {
+            case "/close":
+            System.exit(-1);
+            break;
             case "/ping":
                 console.append("PONG!" + r);
                 break;

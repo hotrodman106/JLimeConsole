@@ -52,7 +52,8 @@
             android:dialogTitle="Console Font"
             android:id="@+id/console_font"
             android:entries="@array/prefSections"
-            android:entryValues="@array/prefSectionsValues"/>
+            android:entryValues="@array/prefSectionsValues"
+            android:summary="%s"/>
 
     </PreferenceCategory>
 
