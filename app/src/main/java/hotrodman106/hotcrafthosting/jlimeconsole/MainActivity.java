@@ -1,33 +1,17 @@
 package hotrodman106.hotcrafthosting.jlimeconsole;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Resources.Theme;
-import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.AttributeSet;
-import android.util.Log;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.view.View.OnKeyListener;
-import android.widget.TextView;
-
-import java.io.BufferedReader;
-import java.text.AttributedCharacterIterator;
+import android.view.ViewGroup;
+import android.widget.EditText;
 
 
 public class MainActivity extends ActionBarActivity{
@@ -83,7 +67,6 @@ public class MainActivity extends ActionBarActivity{
         }
 
 
-
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
@@ -118,15 +101,13 @@ public class MainActivity extends ActionBarActivity{
     }
 
 
-
     public static void submit(View view) {
         if (!input.getText().toString().equals("")) {
             CommandParser.parseInput(input.getText().toString(), console, view);
             input.setText("");
         }
     }
-
-    }
+}
 
 
 
