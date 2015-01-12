@@ -33,7 +33,7 @@ public class FileView extends View{
 	@Override
 	protected void onDraw(Canvas canvas){
 		super.onDraw(canvas);
-		canvas.drawLines(new float[]{0, 0, 85, 0,/**/ 84, 0, 84, 84,/**/ 84, 84, 0, 84,/**/ 0, 84, 0, 0}, secondaryPaint);
+		//canvas.drawLines(new float[]{0, 0, 84, 0,/**/ 84, 0, 84, 84,/**/ 84, 84, 0, 84,/**/ 0, 84, 0, 0}, secondaryPaint);
 		canvas.drawBitmap(image, (85-image.getWidth())/2, 0, mainPaint);
 		canvas.drawText(name, 42.5f, 75, mainPaint);
 	}
