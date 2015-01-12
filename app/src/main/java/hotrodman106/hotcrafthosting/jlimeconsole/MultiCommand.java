@@ -2,11 +2,12 @@ package hotrodman106.hotcrafthosting.jlimeconsole;
 
 import android.widget.EditText;
 
-import java.net.MulticastSocket;
 import java.util.ArrayList;
 
 /**
- * Created by hotrodman106 on 1/7/2015.
+ * Created by Coolway99 on 2015-01-07.
+ *
+ * @author Coolway99 (xxcoolwayxx@gmail.com)
  */
 public class MultiCommand {
     private final ArrayList<String> commandList = new ArrayList<String>();
