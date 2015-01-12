@@ -33,10 +33,12 @@ public class EditorClass extends ActionBarActivity {
             case R.id.consoleView:
                 Intent launchactivity= new Intent(EditorClass.this,MainActivity.class);
                 startActivity(launchactivity);
+                overridePendingTransition(R.anim.left_in, R.anim.right_out);
                 return true;
             case R.id.settings:
                 Intent launchactivity2= new Intent(EditorClass.this,SettingsActivity.class);
                 startActivity(launchactivity2);
+                overridePendingTransition(R.anim.left_in, R.anim.right_out);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -53,6 +55,7 @@ public class EditorClass extends ActionBarActivity {
         //XXX
         //Tis a little sketchy
         super.onBackPressed();
+        overridePendingTransition(R.anim.left_in, R.anim.right_out);
         cmd.run(MainActivity.console);
     }
 }

@@ -68,10 +68,12 @@ public class MainActivity extends ActionBarActivity{
             case R.id.limeEdit:
                 Intent launchactivity= new Intent(MainActivity.this,EditorClass.class);
                 startActivity(launchactivity);
+                overridePendingTransition(R.anim.right_in, R.anim.left_out);
                 return true;
             case R.id.settings:
                 Intent launchactivity2 = new Intent(MainActivity.this,SettingsActivity.class);
                 startActivity(launchactivity2);
+                overridePendingTransition(R.anim.left_in, R.anim.right_out);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
