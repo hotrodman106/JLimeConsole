@@ -26,6 +26,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.view.View.OnKeyListener;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.BufferedReader;
@@ -35,11 +36,13 @@ import java.text.AttributedCharacterIterator;
 public class MainActivity extends ActionBarActivity{
     public static EditText console;
     public static EditText input;
+    public static Intent i;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        i = new Intent(MainActivity.this,EditorClass.class);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()

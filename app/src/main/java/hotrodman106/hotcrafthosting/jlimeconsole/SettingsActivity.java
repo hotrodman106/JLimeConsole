@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -107,19 +108,37 @@ public class SettingsActivity extends PreferenceActivity {
 
     @Override
     public void onBackPressed() {
-        final SeekBar sk = (SeekBar) findViewById(R.id.R_background);
-        final SeekBar sk2 = (SeekBar) findViewById(R.id.G_background);
-        final SeekBar sk3 = (SeekBar) findViewById(R.id.B_background);
-        final SeekBar sk4 = (SeekBar) findViewById(R.id.R_font);
-        final SeekBar sk5 = (SeekBar) findViewById(R.id.G_font);
-        final SeekBar sk6 = (SeekBar) findViewById(R.id.B_font);
-
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-
         int rB = sharedPrefs.getInt("R_background_preference", 0);
         int gB = sharedPrefs.getInt("G_background_preference", 0);
         int bB = sharedPrefs.getInt("B_background_preference", 0);
-        MainActivity.console.getBackground().setColorFilter(Color.rgb(rB,gB,bB), PorterDuff.Mode.ADD);
+        int rF = sharedPrefs.getInt("R_font_preference", 0);
+        int gF = sharedPrefs.getInt("G_font_preference", 0);
+        int bF = sharedPrefs.getInt("B_font_preference", 0);
+        String font = sharedPrefs.getString("type_font_preference", "1");
+
+        MainActivity.console.setBackgroundColor(Color.rgb(rB, gB, bB));
+        MainActivity.console.setTextColor(Color.rgb(rF,gF,bF));
+        switch(font) {
+            case "1":
+                MainActivity.console.setTypeface(Typeface.DEFAULT);
+                break;
+            case "2":
+                MainActivity.console.setTypeface(Typeface.DEFAULT_BOLD);
+                break;
+            case "3":
+                MainActivity.console.setTypeface(Typeface.MONOSPACE);
+                break;
+            case "4":
+                MainActivity.console.setTypeface(Typeface.SANS_SERIF);
+                break;
+            case "5":
+                MainActivity.console.setTypeface(Typeface.SERIF);
+                break;
+            default:
+        }
+
+
         super.onBackPressed();
     }
 
