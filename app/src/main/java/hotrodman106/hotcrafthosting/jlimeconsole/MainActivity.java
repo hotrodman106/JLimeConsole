@@ -1,8 +1,6 @@
 package hotrodman106.hotcrafthosting.jlimeconsole;
 
 import android.content.Intent;
-<<<<<<< Updated upstream
-=======
 import android.content.SharedPreferences;
 import android.content.res.Resources.Theme;
 import android.graphics.Color;
@@ -12,7 +10,6 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
->>>>>>> Stashed changes
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
