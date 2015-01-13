@@ -30,7 +30,7 @@ public class FileChooser extends Activity{
 
 		intent = getIntent();
 		toast = Toast.makeText(this, null, Toast.LENGTH_LONG);
-		adapter = new FileAdapter(this, getDir("Output", MODE_APPEND).getParentFile());
+		adapter = new FileAdapter(this, getDir("Output", MODE_APPEND).getParentFile(), false);
 		System.out.println("Created Adapter");
 		view = (GridView) findViewById(R.id.gridView);
 		view.setAdapter(adapter);
@@ -49,10 +49,7 @@ public class FileChooser extends Activity{
 						toast.setText(((File) parent.getItemAtPosition(position)).getName());
 						if(file.isDirectory()){
 							if(((File) adapter.getItem(position)).listFiles() != null){
-								FileChooser.this.setAdapter(new FileAdapter(FileChooser.this, (File) adapter.getItem(position)));
-								toast.show();
-							} else{
-								toast.setText("The folder is empty");
+								FileChooser.this.setAdapter(new FileAdapter(FileChooser.this, (File) adapter.getItem(position), true));
 								toast.show();
 							}
 						} else{
@@ -73,7 +70,7 @@ public class FileChooser extends Activity{
 						toast.setText(((File) parent.getItemAtPosition(position)).getName());
 						if(file.isDirectory()){
 							if(((File) adapter.getItem(position)).listFiles() != null){
-								FileChooser.this.setAdapter(new FileAdapter(FileChooser.this, (File) adapter.getItem(position)));
+								FileChooser.this.setAdapter(new FileAdapter(FileChooser.this, (File) adapter.getItem(position), true));
 								toast.show();
 							} else{
 								//TODO This should work instead of "throwing an error"
@@ -97,38 +94,61 @@ public class FileChooser extends Activity{
 		this.adapter = adapter;
 		view.setAdapter(adapter);
 	}
-	protected FileAdapter getAdapter(){
-		return this.adapter;
-	}
 }
 class FileAdapter extends BaseAdapter{
 	private final Context context;
 	private final File parent;
 	private final File[] files;
-	public FileAdapter(Context context, File parent){
+	private final boolean hasParent;
+	public FileAdapter(Context context, File parent, Boolean hasParent){
 		this.context = context;
 		this.parent = parent;
 		this.files = parent.listFiles();
+		this.hasParent = hasParent;
 	}
 
 	@Override
 	public int getCount(){
-		return files.length;
+		if(!hasParent){
+			return files.length;
+		}
+		return files.length+1;
 	}
 
 	@Override
 	public Object getItem(int position){
-		return files[position];
+		if(!hasParent){
+			return files[position];
+		}
+		if(position == 0){
+			return parent.getParentFile();
+		}
+		return files[position-1];
 	}
 
 	@Override
 	public long getItemId(int position){
-		return files[position].hashCode();
+		if(!hasParent){
+			return files[position].hashCode();
+		}
+		if(position == 0){
+			return parent.hashCode();
+		}
+		return files[position-1].hashCode();
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent){
-		FileView fileView = new FileView(context, files[position].getName(), files[position].isDirectory());
+		FileView fileView;
+		if(!hasParent){
+			fileView = new FileView(context, files[position].getName(), files[position].isDirectory());
+		} else{
+			if(position != 0){
+				fileView = new FileView(context, files[position - 1].getName(), files[position - 1].isDirectory());
+			} else {
+				fileView = new FileView(context, "..");
+			}
+		}
 		fileView.setLayoutParams(new GridView.LayoutParams(85, 85));
 		fileView.setPadding(8, 8, 8, 8);
 		return fileView;

@@ -25,6 +25,12 @@ public class FileView extends View{
 				BitmapFactory.decodeResource(getResources(), R.drawable.file));
 		init();
 	}
+	public FileView(Context context, String name){
+		super(context);
+		this.name = name;
+		this.image = BitmapFactory.decodeResource(getResources(), R.drawable.uproot);
+		init();
+	}
 	private void init(){
 		mainPaint.setColor(0xFFFFFFFF);
 		mainPaint.setTextAlign(Paint.Align.CENTER);
