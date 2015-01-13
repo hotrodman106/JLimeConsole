@@ -17,10 +17,13 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity{
     public static EditText console;
