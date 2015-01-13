@@ -36,6 +36,7 @@ import android.widget.EditText;
 public class CommandParser extends Activity {
     private static final String r = "\n";
     private static HashMap<String,String> stringlist = new HashMap<String,String>();
+    private static HashMap<String,Integer> intlist = new HashMap<String,Integer>();
 
 
     /**
@@ -43,6 +44,7 @@ public class CommandParser extends Activity {
      * @param console   The Editext used to show outputed data
      * @param view    The view of the android project
      */
+
     public static void debug(String input, EditText console, View view){
         switch (input) {
             case "/debug.close":
@@ -74,8 +76,34 @@ public class CommandParser extends Activity {
                 } catch (Exception p) {
                     console.append("OI! There is an error with your clear String command!" + r);
                 }
-            }else{
-                    parseInput(input,console,view);
+            }else if (input.startsWith("/debug.clearInt:")) {
+                    try {
+                        String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
+                        if (intlist.get(name) == null) {
+                            MainActivity.console.append("There is no Integer in memory by that name!" + r);
+                        } else {
+                            MainActivity.console.append("Integer " + name + " removed from memory!" + r);
+                            intlist.remove(name);
+                        }
+
+                    } catch (Exception p) {
+                        console.append("OI! There is an error with your clear Integer command!" + r);
+                    }
+
+                }else if (input.startsWith("/debug.getInt:")) {
+            try {
+                String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
+                if(intlist.get(name) == null){
+                    MainActivity.console.append("There is no Integer in memory by that name!" + r);
+                }else {
+                    MainActivity.console.append(intlist.get(name) + r);
+                }
+
+            } catch (Exception p) {
+                console.append("OI! There is an error with your get Integer command!" + r);
+            }
+        }else{
+               parseInput(input,console,view);
         }
     }}
     public static void parseInput(String input, EditText console, View view) {
@@ -170,6 +198,18 @@ public class CommandParser extends Activity {
                 MainActivity.console.append("String " + name + " set to " + string + r);
             } catch (Exception p) {
                 console.append("OI! There is an error with your String declaration statement!" + r);
+            }
+
+        }else if (input.startsWith("/Int:")) {
+            try {
+                String[] vars = input.replaceFirst(":", "\u0000").split("\u0000")[1].split(",");
+                String name = vars[0];
+                int integer = Integer.parseInt(vars[1]);
+
+                intlist.put(name, integer);
+                MainActivity.console.append("Integer " + name + " set to " + integer + r);
+            } catch (Exception p) {
+                console.append("OI! There is an error with your Integer declaration statement!" + r);
             }
 
         }else if (input.startsWith("/gettime:")) {
