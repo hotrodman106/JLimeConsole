@@ -31,12 +31,13 @@ import android.os.Build;
 import android.widget.EditText;
 
 /**
- * Created by hotrodman106 on 1/1/2015.
+ * Created by hotrodman106 and Coolway99 on 1/1/2015.
  */
 public class CommandParser extends Activity {
     private static final String r = "\n";
     private static HashMap<String,String> stringlist = new HashMap<String,String>();
     private static HashMap<String,Integer> intlist = new HashMap<String,Integer>();
+    private static HashMap<String,Boolean> booleanlist = new HashMap<String,Boolean>();
 
 
     /**
@@ -102,8 +103,34 @@ public class CommandParser extends Activity {
             } catch (Exception p) {
                 console.append("OI! There is an error with your get Integer command!" + r);
             }
+        }else if (input.startsWith("/debug.clearBoolean:")) {
+            try {
+                String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
+                if (booleanlist.get(name) == null) {
+                    MainActivity.console.append("There is no Boolean in memory by that name!" + r);
+                } else {
+                    MainActivity.console.append("Boolean " + name + " removed from memory!" + r);
+                    booleanlist.remove(name);
+                }
+
+            } catch (Exception p) {
+                console.append("OI! There is an error with your clear Boolean command!" + r);
+            }
+
+        }else if (input.startsWith("/debug.getBoolean:")) {
+            try {
+                String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
+                if(booleanlist.get(name) == null){
+                    MainActivity.console.append("There is no Boolean in memory by that name!" + r);
+                }else {
+                    MainActivity.console.append(booleanlist.get(name) + r);
+                }
+
+            } catch (Exception p) {
+                console.append("OI! There is an error with your get Boolean command!" + r);
+            }
         }else{
-               parseInput(input,console,view);
+               parseInput(input, console, view);
         }
     }}
     public static void parseInput(String input, EditText console, View view) {
@@ -210,6 +237,18 @@ public class CommandParser extends Activity {
                 MainActivity.console.append("Integer " + name + " set to " + integer + r);
             } catch (Exception p) {
                 console.append("OI! There is an error with your Integer declaration statement!" + r);
+            }
+
+        }else if (input.startsWith("/Boolean:")) {
+            try {
+                String[] vars = input.replaceFirst(":", "\u0000").split("\u0000")[1].split(",");
+                String name = vars[0];
+                boolean b = Boolean.parseBoolean(vars[1]);
+
+                booleanlist.put(name, b);
+                MainActivity.console.append("Boolean " + name + " set to " + b + r);
+            } catch (Exception p) {
+                console.append("OI! There is an error with your Boolean declaration statement!" + r);
             }
 
         }else if (input.startsWith("/gettime:")) {
