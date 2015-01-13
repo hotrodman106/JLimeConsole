@@ -15,26 +15,31 @@ import android.view.View;
 public class FileView extends View{
 	private final Bitmap image;
 	private final Paint mainPaint = new Paint();
-	private final Paint secondaryPaint = new Paint();
+	private final boolean isUproot;
 	private final String name;
-	//public Drawable file = getResources().getDrawable(R.drawable.file);
 	public FileView(Context context, String name, boolean isDirectory){
 		super(context);
 		this.name = name;
 		this.image = (isDirectory ? BitmapFactory.decodeResource(getResources(), R.drawable.folder) :
 				BitmapFactory.decodeResource(getResources(), R.drawable.file));
+		this.isUproot = false;
 		init();
 	}
 	public FileView(Context context, String name){
 		super(context);
 		this.name = name;
 		this.image = BitmapFactory.decodeResource(getResources(), R.drawable.uproot);
+		this.isUproot = true;
 		init();
 	}
 	private void init(){
 		mainPaint.setColor(0xFFFFFFFF);
 		mainPaint.setTextAlign(Paint.Align.CENTER);
-		secondaryPaint.setColor(0xFF00FF00);
+		if(isUproot){
+			mainPaint.setTextSize(50);
+		} else {
+			mainPaint.setTextSize(14);
+		}
 	}
 	@Override
 	protected void onDraw(Canvas canvas){

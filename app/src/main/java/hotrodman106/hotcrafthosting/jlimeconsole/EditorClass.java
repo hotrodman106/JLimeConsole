@@ -74,8 +74,14 @@ public class EditorClass extends ActionBarActivity{
 					e.printStackTrace();
 				}
 				break;
+			case 1:
+				try{
+					save((File) data.getSerializableExtra("file"));
+				} catch(IOException e){
+					e.printStackTrace();
+				}
+				break;
 			default:
-
 				break;
 		}
 	}
