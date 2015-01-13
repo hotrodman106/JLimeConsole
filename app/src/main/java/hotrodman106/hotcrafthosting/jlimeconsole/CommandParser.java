@@ -2,9 +2,12 @@ package hotrodman106.hotcrafthosting.jlimeconsole;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Stack;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -32,7 +35,7 @@ import android.widget.EditText;
  */
 public class CommandParser extends Activity {
     private static final String r = "\n";
-
+    private static HashMap<String,String> stringlist = new HashMap<String,String>();
 
 
     /**
@@ -40,11 +43,43 @@ public class CommandParser extends Activity {
      * @param console   The Editext used to show outputed data
      * @param view    The view of the android project
      */
+    public static void debug(String input, EditText console, View view){
+        switch (input) {
+            case "/debug.close":
+                System.exit(0);
+                break;
+            default:
+                if (input.startsWith("/debug.getString:")) {
+                    try {
+                        String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
+                        if(stringlist.get(name) == null){
+                            MainActivity.console.append("There is no String in memory by that name!" + r);
+                        }else {
+                            MainActivity.console.append(stringlist.get(name) + r);
+                        }
+
+                    } catch (Exception p) {
+                        console.append("OI! There is an error with your get String command!" + r);
+                    }
+                    }else if (input.startsWith("/debug.clearString:")) {
+                try {
+                    String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
+                    if(stringlist.get(name) == null){
+                        MainActivity.console.append("There is no String in memory by that name!" + r);
+                    }else {
+                        MainActivity.console.append("String " + name + " removed from memory!" + r);
+                        stringlist.remove(name);
+                    }
+
+                } catch (Exception p) {
+                    console.append("OI! There is an error with your clear String command!" + r);
+                }
+            }else{
+                    parseInput(input,console,view);
+        }
+    }}
     public static void parseInput(String input, EditText console, View view) {
         switch (input) {
-            case "/close":
-            System.exit(-1);
-            break;
             case "/ping":
                 console.append("PONG!" + r);
                 break;
@@ -125,6 +160,17 @@ public class CommandParser extends Activity {
             } catch (Exception p) {
                 console.append("OI! There is an error with your for statement!" + r);
             }
+        }else if (input.startsWith("/String:")) {
+            try {
+                String[] vars = input.replaceFirst(":", "\u0000").split("\u0000")[1].split(",");
+                String name = vars[0];
+                String string = vars[1];
+
+                stringlist.put(name, string);
+                MainActivity.console.append("String " + name + " set to " + string + r);
+            } catch (Exception p) {
+                console.append("OI! There is an error with your String declaration statement!" + r);
+            }
 
         }else if (input.startsWith("/gettime:")) {
             String var = input.substring(input.indexOf(":") + 1).trim();
@@ -135,6 +181,7 @@ public class CommandParser extends Activity {
             }catch (Exception p){
                 console.append("OI! That's not a proper date String! Try inputting a date String!" + r);
             }
+
         }else if(input.startsWith("/if:")) {
             String[] vars;
             vars = new String[4];
