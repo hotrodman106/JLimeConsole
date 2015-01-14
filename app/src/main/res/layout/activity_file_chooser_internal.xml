@@ -8,10 +8,11 @@
         android:layout_height="wrap_content"
         android:id="@+id/saveName"
         android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/save"
-        android:layout_alignTop="@+id/importButton"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:layout_alignParentStart="true"
+        android:inputType="textNoSuggestions"
+        android:layout_toLeftOf="@+id/save"
+        android:layout_toStartOf="@+id/save"/>
 
     <GridView
         android:layout_width="fill_parent"
@@ -25,7 +26,7 @@
         android:columnWidth="101dp"
         android:drawSelectorOnTop="true"
         android:gravity="center"
-        android:layout_above="@+id/importButton"/>
+        android:layout_above="@+id/externalButton"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -33,29 +34,16 @@
         android:text="Save"
         android:id="@+id/save"
         android:layout_below="@+id/gridView"
-        android:layout_toLeftOf="@+id/exportButton"
-        android:layout_toStartOf="@+id/exportButton"/>
+        android:layout_toLeftOf="@+id/externalButton"
+        android:layout_toStartOf="@+id/externalButton"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Export"
-        android:id="@+id/exportButton"
-        android:layout_alignTop="@+id/importButton"
+        android:text="External"
+        android:id="@+id/externalButton"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Import"
-        android:id="@+id/importButton"
-        android:visibility="invisible"
-        android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@id/save"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
 
 </RelativeLayout>

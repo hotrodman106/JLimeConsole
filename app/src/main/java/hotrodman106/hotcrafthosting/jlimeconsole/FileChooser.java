@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.Toast;
+import android.widget.RelativeLayout;
 
 import java.io.File;
 
@@ -26,7 +27,6 @@ import java.io.File;
 public class FileChooser extends Activity{
 	private FileAdapter adapter;
 	private GridView view;
-	public Toast toast;
 	public Intent intent;
 	private int depth = 0;
 	@Override
@@ -35,22 +35,45 @@ public class FileChooser extends Activity{
 		this.setContentView(R.layout.activity_file_chooser_internal);
 
 		intent = getIntent();
-		toast = Toast.makeText(this, null, Toast.LENGTH_LONG);
-		adapter = new FileAdapter(this, getDir("Output", MODE_APPEND).getParentFile(), false);
+		adapter = new FileAdapter(this, getFilesDir(), false);
 		view = (GridView) findViewById(R.id.gridView);
 		view.setAdapter(adapter);
+		findViewById(R.id.externalButton).setOnClickListener(new View.OnClickListener(){
+			boolean isExternal = false;
+
+			@Override
+			public void onClick(View v){
+				if(!isExternal){
+					setAdapter(new FileAdapter(FileChooser.this, Environment.getExternalStoragePublicDirectory("Documents"), false));
+					((Button) v).setText("Internal");
+				} else{
+					setAdapter(new FileAdapter(FileChooser.this, getFilesDir(), false));
+					((Button) v).setText("External");
+				}
+				isExternal = !isExternal;
+			}
+		});
+		RelativeLayout.LayoutParams p;
 		switch(intent.getIntExtra("requestCode", 0)){
 			case 0:
-				findViewById(R.id.exportButton).setVisibility(View.GONE);
 				findViewById(R.id.save).setVisibility(View.GONE);
 				findViewById(R.id.saveName).setVisibility(View.GONE);
-				findViewById(R.id.importButton).setVisibility(View.VISIBLE);
-
+				if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+					findViewById(R.id.externalButton).setVisibility(View.GONE);
+					p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+					findViewById(R.id.gridView).setLayoutParams(p);
+				} else {
+					p = new RelativeLayout.LayoutParams(
+							RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+					p.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+					p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+					p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+					findViewById(R.id.externalButton).setLayoutParams(p);
+				}
 				view.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 					@Override
 					 public void onItemClick(AdapterView<?> parent, View view, int position, long id){
 						File file = (File) adapter.getItem(position);
-						toast.setText(((File) parent.getItemAtPosition(position)).getName());
 						if(file.isDirectory()){
 							if(position == 0 && depth != 0){
 								depth--;
@@ -59,7 +82,6 @@ public class FileChooser extends Activity{
 							}
 							if(((File) adapter.getItem(position)).listFiles() != null){
 								FileChooser.this.setAdapter(new FileAdapter(FileChooser.this, (File) adapter.getItem(position), depth!=0));
-								toast.show();
 							}
 						} else{
 							Intent i = new Intent();
@@ -71,7 +93,21 @@ public class FileChooser extends Activity{
 				});
 				break;
 			case 1:
-
+				if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+					findViewById(R.id.externalButton).setVisibility(View.GONE);
+					p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+					p.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+					p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+					p.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+					p.addRule(RelativeLayout.ALIGN_BOTTOM, R.id.save);
+					findViewById(R.id.gridView).setLayoutParams(p);
+					p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+					p.addRule(RelativeLayout.ALIGN_TOP, R.id.gridView);
+					p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+					p.addRule(RelativeLayout.ALIGN_LEFT, R.id.saveName);
+					p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+					findViewById(R.id.save).setLayoutParams(p);
+				}
 				((EditText) findViewById(R.id.saveName)).setOnKeyListener(new View.OnKeyListener(){
 					@Override
 					public boolean onKey(View v, int keyCode, KeyEvent event){
@@ -94,11 +130,9 @@ public class FileChooser extends Activity{
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view, int position, long id){
 						File file = (File) adapter.getItem(position);
-						toast.setText(((File) parent.getItemAtPosition(position)).getName());
 						if(file.isDirectory()){
 							if(((File) adapter.getItem(position)).listFiles() != null){
 								FileChooser.this.setAdapter(new FileAdapter(FileChooser.this, (File) adapter.getItem(position), true));
-								toast.show();
 							}
 						} else {
 							finish(file, 1);
@@ -142,7 +176,7 @@ public class FileChooser extends Activity{
 	private void finish(File file, int returnCode){
 		Intent i = new Intent();
 		i.putExtra("file", file);
-		setResult(intent.getIntExtra("requestCode", returnCode), i);
+		setResult(returnCode, i);
 		finish();
 	}
 	protected void setAdapter(FileAdapter adapter){
@@ -158,7 +192,7 @@ class FileAdapter extends BaseAdapter{
 	public FileAdapter(Context context, File parent, Boolean hasParent){
 		this.context = context;
 		this.parent = parent;
-		this.files = parent.listFiles();
+		this.files = (parent.listFiles() == null ? new File[0] : parent.listFiles());
 		this.hasParent = hasParent;
 	}
 
