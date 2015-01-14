@@ -1,34 +1,14 @@
 package hotrodman106.hotcrafthosting.jlimeconsole;
 
+import android.app.Activity;
+import android.view.View;
+import android.widget.EditText;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Random;
-import java.util.Stack;
-
-import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
-import android.widget.EditText;
 
 /**
  * Created by hotrodman106 and Coolway99 on 1/1/2015.
@@ -52,87 +32,62 @@ public class CommandParser extends Activity {
                 System.exit(0);
                 break;
             default:
-                if (input.startsWith("/debug.getString:")) {
+                if (input.startsWith("/debug.getVar:")) {
                     try {
                         String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
+
                         if(stringlist.get(name) == null){
-                            MainActivity.console.append("There is no String in memory by that name!" + r);
+							if(booleanlist.get(name) == null){
+								if(intlist.get(name) == null){
+									 MainActivity.console.append("There is no variable in memory by that name!" + r);
+								} else {
+									MainActivity.console.append(intlist.get(name) + r);
+								}
+							} else {
+								MainActivity.console.append(booleanlist.get(name) + r);
+                            }
                         }else {
                             MainActivity.console.append(stringlist.get(name) + r);
                         }
 
-                    } catch (Exception p) {
-                        console.append("OI! There is an error with your get String command!" + r);
+                    } catch (Exception p){
+	                    console.append("OI! There is an error with your get variable command!" + r);
                     }
-                    }else if (input.startsWith("/debug.clearString:")) {
-                try {
-                    String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
-                    if(stringlist.get(name) == null){
-                        MainActivity.console.append("There is no String in memory by that name!" + r);
-                    }else {
-                        MainActivity.console.append("String " + name + " removed from memory!" + r);
-                        stringlist.remove(name);
-                    }
-
-                } catch (Exception p) {
-                    console.append("OI! There is an error with your clear String command!" + r);
-                }
-            }else if (input.startsWith("/debug.clearInt:")) {
-                    try {
-                        String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
-                        if (intlist.get(name) == null) {
-                            MainActivity.console.append("There is no Integer in memory by that name!" + r);
-                        } else {
-                            MainActivity.console.append("Integer " + name + " removed from memory!" + r);
-                            intlist.remove(name);
-                        }
-
-                    } catch (Exception p) {
-                        console.append("OI! There is an error with your clear Integer command!" + r);
-                    }
-
-                }else if (input.startsWith("/debug.getInt:")) {
-            try {
-                String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
-                if(intlist.get(name) == null){
-                    MainActivity.console.append("There is no Integer in memory by that name!" + r);
-                }else {
-                    MainActivity.console.append(intlist.get(name) + r);
-                }
-
-            } catch (Exception p) {
-                console.append("OI! There is an error with your get Integer command!" + r);
-            }
-        }else if (input.startsWith("/debug.clearBoolean:")) {
-            try {
-                String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
-                if (booleanlist.get(name) == null) {
-                    MainActivity.console.append("There is no Boolean in memory by that name!" + r);
-                } else {
-                    MainActivity.console.append("Boolean " + name + " removed from memory!" + r);
-                    booleanlist.remove(name);
-                }
-
-            } catch (Exception p) {
-                console.append("OI! There is an error with your clear Boolean command!" + r);
-            }
-
-        }else if (input.startsWith("/debug.getBoolean:")) {
-            try {
-                String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
-                if(booleanlist.get(name) == null){
-                    MainActivity.console.append("There is no Boolean in memory by that name!" + r);
-                }else {
-                    MainActivity.console.append(booleanlist.get(name) + r);
-                }
-
-            } catch (Exception p) {
-                console.append("OI! There is an error with your get Boolean command!" + r);
-            }
-        }else{
-               parseInput(input, console, view);
-        }
-    }}
+	            } else if (input.startsWith("/debug.clearVar:")){
+	                try{
+		                String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
+		                if(stringlist.remove(name) == null && booleanlist.remove(name) == null && intlist.remove(name) == null){
+			                MainActivity.console.append("There is no variable in memory by that name!" + r);
+		                } else{
+			                MainActivity.console.append("Variable " + name + " removed from memory!" + r);
+		                }
+	                } catch(Exception p){
+		                console.append("OI! There is an error with your clear variable command!" + r);
+	                }
+                } else if(input.startsWith("/debug.varType:")){
+					try{
+						String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
+						if(stringlist.get(name) == null){
+							if(booleanlist.get(name) == null){
+								if(intlist.get(name) == null){
+									MainActivity.console.append("There is no variable in memory by that name!" + r);
+								} else {
+									MainActivity.console.append("Variable is an Integer" + r);
+								}
+							} else {
+								MainActivity.console.append("Variable is a Boolean" + r);
+							}
+						}else {
+							MainActivity.console.append("Variable is a String" + r);
+						}
+					} catch(Exception e){
+						console.append("OI! There is an error with your variable type command!" + r);
+					}
+	            } else {
+	                parseInput(input, console, view);
+	        }
+	    }
+	}
     public static void parseInput(String input, EditText console, View view) {
         switch (input) {
             case "/ping":
@@ -220,7 +175,8 @@ public class CommandParser extends Activity {
                 String[] vars = input.replaceFirst(":", "\u0000").split("\u0000")[1].split(",");
                 String name = vars[0];
                 String string = vars[1];
-
+				booleanlist.remove(name);
+				intlist.remove(name);
                 stringlist.put(name, string);
                 MainActivity.console.append("String " + name + " set to " + string + r);
             } catch (Exception p) {
@@ -232,7 +188,8 @@ public class CommandParser extends Activity {
                 String[] vars = input.replaceFirst(":", "\u0000").split("\u0000")[1].split(",");
                 String name = vars[0];
                 int integer = Integer.parseInt(vars[1]);
-
+				booleanlist.remove(name);
+				stringlist.remove(name);
                 intlist.put(name, integer);
                 MainActivity.console.append("Integer " + name + " set to " + integer + r);
             } catch (Exception p) {
@@ -244,7 +201,8 @@ public class CommandParser extends Activity {
                 String[] vars = input.replaceFirst(":", "\u0000").split("\u0000")[1].split(",");
                 String name = vars[0];
                 boolean b = Boolean.parseBoolean(vars[1]);
-
+				stringlist.remove(name);
+				intlist.remove(name);
                 booleanlist.put(name, b);
                 MainActivity.console.append("Boolean " + name + " set to " + b + r);
             } catch (Exception p) {
