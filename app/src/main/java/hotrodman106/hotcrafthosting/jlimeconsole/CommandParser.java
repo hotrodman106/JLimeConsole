@@ -88,7 +88,43 @@ public class CommandParser extends Activity {
 	        }
 	    }
 	}
+	private static String getVar(String key){
+		if(stringlist.get(key) != null){
+			return stringlist.get(key);
+		}
+		if(intlist.get(key) != null){
+			return Integer.toString(intlist.get(key));
+		}
+		if(booleanlist.get(key) != null){
+			return Boolean.toString(booleanlist.get(key));
+		}
+		return null;
+	}
     public static void parseInput(String input, EditText console, View view) {
+		String[] in = input.split("%");
+		if(in.length != 1){
+			if(in.length % 2 != 0){
+				console.append("Oi! You forgot a percent sign somewhere" + r);
+				return;
+			} else{
+				StringBuilder out = new StringBuilder();
+				for(int x = 0; x < in.length; x++){
+					out.append(in[x++]);
+					String var = getVar(in[x++]);
+					if(var == null){
+						console.append("Oi! One of the variables is not declared! Name: " + in[x - 1] + r);
+						return;
+					}
+					out.append(var);
+					try{
+						out.append(in[x]);
+					} catch(ArrayIndexOutOfBoundsException e){
+						break;
+					}
+				}
+				input = out.toString();
+			}
+		}
         switch (input) {
             case "/ping":
                 console.append("PONG!" + r);
