@@ -4,3 +4,7 @@
 /.idea/libraries
 .DS_Store
 /build
+.idea/misc.xml
+app/app.iml
+.idea/dictionaries/Coolway.xml
+.idea/codeStyleSettings.xml
