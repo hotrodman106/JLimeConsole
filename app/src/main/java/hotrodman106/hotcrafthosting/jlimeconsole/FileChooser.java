@@ -53,23 +53,17 @@ public class FileChooser extends Activity{
 				isExternal = !isExternal;
 			}
 		});
-		RelativeLayout.LayoutParams p;
+
 		switch(intent.getIntExtra("requestCode", 0)){
 			case 0:
 				findViewById(R.id.save).setVisibility(View.GONE);
 				findViewById(R.id.saveName).setVisibility(View.GONE);
-				if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-					findViewById(R.id.externalButton).setVisibility(View.GONE);
-					p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-					findViewById(R.id.gridView).setLayoutParams(p);
-				} else {
-					p = new RelativeLayout.LayoutParams(
-							RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-					p.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-					p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
-					p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-					findViewById(R.id.externalButton).setLayoutParams(p);
-				}
+				RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(
+						RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+				p.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+				p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+				p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+				findViewById(R.id.externalButton).setLayoutParams(p);
 				view.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 					@Override
 					 public void onItemClick(AdapterView<?> parent, View view, int position, long id){
@@ -93,21 +87,6 @@ public class FileChooser extends Activity{
 				});
 				break;
 			case 1:
-				if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-					findViewById(R.id.externalButton).setVisibility(View.GONE);
-					p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-					p.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-					p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
-					p.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-					p.addRule(RelativeLayout.ALIGN_BOTTOM, R.id.save);
-					findViewById(R.id.gridView).setLayoutParams(p);
-					p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-					p.addRule(RelativeLayout.ALIGN_TOP, R.id.gridView);
-					p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
-					p.addRule(RelativeLayout.ALIGN_LEFT, R.id.saveName);
-					p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-					findViewById(R.id.save).setLayoutParams(p);
-				}
 				((EditText) findViewById(R.id.saveName)).setOnKeyListener(new View.OnKeyListener(){
 					@Override
 					public boolean onKey(View v, int keyCode, KeyEvent event){
@@ -177,6 +156,7 @@ public class FileChooser extends Activity{
 		Intent i = new Intent();
 		i.putExtra("file", file);
 		setResult(returnCode, i);
+		((Button) findViewById(R.id.externalButton)).setText("External");
 		finish();
 	}
 	protected void setAdapter(FileAdapter adapter){
