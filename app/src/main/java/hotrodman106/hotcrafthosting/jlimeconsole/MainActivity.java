@@ -1,42 +1,34 @@
 package hotrodman106.hotcrafthosting.jlimeconsole;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.view.View.OnKeyListener;
-import android.widget.TextView;
-
+import android.view.ViewGroup;
+import android.widget.EditText;
 
 public class MainActivity extends ActionBarActivity{
     public static EditText console;
     public static EditText input;
+    public static Intent i;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        i = new Intent(MainActivity.this,EditorClass.class);
+
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
-
     }
 
 
@@ -55,12 +47,16 @@ public class MainActivity extends ActionBarActivity{
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        switch (item.getItemId()) {
-            case R.id.new_game:
-               System.out.println("OI Pressed!");
+        switch (id) {
+            case R.id.limeEdit:
+                Intent launchactivity= new Intent(MainActivity.this,EditorClass.class);
+                startActivity(launchactivity);
+                overridePendingTransition(R.anim.right_in, R.anim.left_out);
                 return true;
-            case R.id.help:
-                System.out.println("OI2 Pressed!");
+            case R.id.settings:
+                Intent launchactivity2 = new Intent(MainActivity.this,SettingsActivity.class);
+                startActivity(launchactivity2);
+                overridePendingTransition(R.anim.left_in, R.anim.right_out);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -74,14 +70,12 @@ public class MainActivity extends ActionBarActivity{
         }
 
 
-
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             console = (EditText) rootView.findViewById(R.id.editText);
             input = (EditText) rootView.findViewById(R.id.editText2);
-
             input.setOnKeyListener(new OnKeyListener()
             {
                 public boolean onKey(View v, int keyCode, KeyEvent event)
@@ -110,13 +104,14 @@ public class MainActivity extends ActionBarActivity{
 
 
     public static void submit(View view) {
-        if (!input.getText().toString().equals("")){
+        if (!input.getText().toString().equals("")) {
             CommandParser.parseInput(input.getText().toString(), console, view);
             input.setText("");
+        }
     }
-    }
-
-
 }
+
+
+
 
 
