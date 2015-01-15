@@ -22,7 +22,7 @@ public class MultiCommand {
         for(String s : commandList){
             System.out.println(s);
 
-            CommandParser.parseInput(s, console, null);
+            CommandParser.inputCommand(s, console, null, false);
         }
     }
 }

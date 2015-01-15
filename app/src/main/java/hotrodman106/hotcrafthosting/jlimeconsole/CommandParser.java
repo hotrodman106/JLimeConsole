@@ -26,7 +26,7 @@ public class CommandParser extends Activity {
      * @param view    The view of the android project
      */
 
-    public static void debug(String input, EditText console, View view){
+    private static void debug(String input, EditText console, View view){
         switch (input) {
             case "/debug.close":
                 System.exit(0);
@@ -100,31 +100,53 @@ public class CommandParser extends Activity {
 		}
 		return null;
 	}
-    public static void parseInput(String input, EditText console, View view) {
-		String[] in = input.split("%");
-		if(in.length != 1){
-			if(in.length % 2 != 0){
-				console.append("Oi! You forgot a percent sign somewhere" + r);
-				return;
-			} else{
-				StringBuilder out = new StringBuilder();
-				for(int x = 0; x < in.length; x++){
-					out.append(in[x++]);
-					String var = getVar(in[x++]);
-					if(var == null){
-						console.append("Oi! One of the variables is not declared! Name: " + in[x - 1] + r);
-						return;
-					}
-					out.append(var);
-					try{
-						out.append(in[x]);
-					} catch(ArrayIndexOutOfBoundsException e){
+	public static void inputCommand(String input, EditText console, View view, boolean debug){
+		char[] in = input.toCharArray();
+		boolean inVar = false;
+		boolean escaped = false;
+		StringBuilder out = new StringBuilder();
+		String temp = "";
+		for(int x = 0; x < in.length; x++){
+			char y = in[x];
+			if(escaped){
+				temp += y;
+				escaped = false;
+			} else {
+				switch(y){
+					case '%':
+						if(inVar){
+							inVar = false;
+							String var = getVar(temp);
+							if(var != null){
+								out.append(var);
+								temp = "";
+							} else{
+								console.append("Oi! That was not a valid variable!" + r + "Name: " + temp + r);
+								return;
+							}
+						} else{
+							inVar = true;
+							out.append(temp);
+							temp = "";
+						}
 						break;
-					}
+					case '\\':
+						escaped = true;
+						break;
+					default:
+						temp += y;
+						break;
 				}
-				input = out.toString();
 			}
 		}
+		out.append(temp);
+		if(debug){
+			debug(out.toString(), console, view);
+		} else {
+			parseInput(out.toString(), console, view);
+		}
+	}
+    private static void parseInput(String input, EditText console, View view) {
         switch (input) {
             case "/ping":
                 console.append("PONG!" + r);
@@ -158,7 +180,7 @@ public class CommandParser extends Activity {
         }
     }
 
-    public static void parseAdvanceCommand(String input, EditText console) {
+    private static void parseAdvanceCommand(String input, EditText console) {
         if (input.startsWith("/echo:")) {
             String var = input.substring(input.indexOf(":") + 1).trim();
             console.append(var + r);

@@ -2,28 +2,20 @@ package hotrodman106.hotcrafthosting.jlimeconsole;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources.Theme;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
-import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity{
     public static EditText console;
@@ -146,7 +138,7 @@ public class MainActivity extends ActionBarActivity{
 
     public static void submit(View view) {
         if (!input.getText().toString().equals("")) {
-            CommandParser.debug(input.getText().toString(), console, view);
+            CommandParser.inputCommand(input.getText().toString(), console, view, true);
             input.setText("");
         }
     }
