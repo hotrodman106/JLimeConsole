@@ -1,11 +1,10 @@
 package hotrodman106.hotcrafthosting.jlimeconsole;
 
-import android.app.Activity;
-import android.view.View;
 import android.widget.EditText;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
@@ -13,20 +12,19 @@ import java.util.Random;
 /**
  * Created by hotrodman106 and Coolway99 on 1/1/2015.
  */
-public class CommandParser extends Activity {
+public class CommandParser{
     private static final String r = "\n";
-    private static HashMap<String,String> stringlist = new HashMap<String,String>();
-    private static HashMap<String,Integer> intlist = new HashMap<String,Integer>();
-    private static HashMap<String,Boolean> booleanlist = new HashMap<String,Boolean>();
+    private static HashMap<String,String> stringList = new HashMap<>();
+    private static HashMap<String,Integer> intList = new HashMap<>();
+    private static HashMap<String,Boolean> booleanList = new HashMap<>();
+	private static ArrayList<String> consoleOutput = new ArrayList<>();
 
 
     /**
      * @param input   The input String to be parsed
-     * @param console   The Editext used to show outputed data
-     * @param view    The view of the android project
      */
 
-    private static void debug(String input, EditText console, View view){
+    private static void debug(String input){
         switch (input) {
             case "/debug.close":
                 System.exit(0);
@@ -36,71 +34,87 @@ public class CommandParser extends Activity {
                     try {
                         String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
 
-                        if(stringlist.get(name) == null){
-							if(booleanlist.get(name) == null){
-								if(intlist.get(name) == null){
-									 MainActivity.console.append("There is no variable in memory by that name!" + r);
+                        if(stringList.get(name) == null){
+							if(booleanList.get(name) == null){
+								if(intList.get(name) == null){
+									consoleOutput.add("There is no variable in memory by that name!" + r);
 								} else {
-									MainActivity.console.append(intlist.get(name) + r);
+									consoleOutput.add(intList.get(name) + r);
 								}
 							} else {
-								MainActivity.console.append(booleanlist.get(name) + r);
+								consoleOutput.add(booleanList.get(name) + r);
                             }
                         }else {
-                            MainActivity.console.append(stringlist.get(name) + r);
+	                        consoleOutput.add(stringList.get(name) + r);
                         }
 
                     } catch (Exception p){
-	                    console.append("OI! There is an error with your get variable command!" + r);
+	                    consoleOutput.add("OI! There is an error with your get variable command!" + r);
                     }
 	            } else if (input.startsWith("/debug.clearVar:")){
 	                try{
 		                String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
-		                if(stringlist.remove(name) == null && booleanlist.remove(name) == null && intlist.remove(name) == null){
-			                MainActivity.console.append("There is no variable in memory by that name!" + r);
+		                if(stringList.remove(name) == null && booleanList.remove(name) == null && intList.remove(name) == null){
+			                consoleOutput.add("There is no variable in memory by that name!" + r);
 		                } else{
-			                MainActivity.console.append("Variable " + name + " removed from memory!" + r);
+			                consoleOutput.add("Variable " + name + " removed from memory!" + r);
 		                }
 	                } catch(Exception p){
-		                console.append("OI! There is an error with your clear variable command!" + r);
+		                consoleOutput.add("OI! There is an error with your clear variable command!" + r);
 	                }
                 } else if(input.startsWith("/debug.varType:")){
 					try{
 						String name = input.replaceFirst(":", "\u0000").split("\u0000")[1];
-						if(stringlist.get(name) == null){
-							if(booleanlist.get(name) == null){
-								if(intlist.get(name) == null){
-									MainActivity.console.append("There is no variable in memory by that name!" + r);
+						if(stringList.get(name) == null){
+							if(booleanList.get(name) == null){
+								if(intList.get(name) == null){
+									consoleOutput.add("There is no variable in memory by that name!" + r);
 								} else {
-									MainActivity.console.append("Variable is an Integer" + r);
+									consoleOutput.add("Variable is an Integer" + r);
 								}
 							} else {
-								MainActivity.console.append("Variable is a Boolean" + r);
+								consoleOutput.add("Variable is a Boolean" + r);
 							}
 						}else {
-							MainActivity.console.append("Variable is a String" + r);
+							consoleOutput.add("Variable is a String" + r);
 						}
 					} catch(Exception e){
-						console.append("OI! There is an error with your variable type command!" + r);
+						consoleOutput.add("OI! There is an error with your variable type command!" + r);
 					}
 	            } else {
-	                parseInput(input, console, view);
+	                parseInput(input);
 	        }
 	    }
 	}
 	private static String getVar(String key){
-		if(stringlist.get(key) != null){
-			return stringlist.get(key);
+		if(stringList.get(key) != null){
+			return stringList.get(key);
 		}
-		if(intlist.get(key) != null){
-			return Integer.toString(intlist.get(key));
+		if(intList.get(key) != null){
+			return Integer.toString(intList.get(key));
 		}
-		if(booleanlist.get(key) != null){
-			return Boolean.toString(booleanlist.get(key));
+		if(booleanList.get(key) != null){
+			return Boolean.toString(booleanList.get(key));
 		}
 		return null;
 	}
-	public static void inputCommand(String input, EditText console, View view, boolean debug){
+	public static void inputCommand(String input, EditText console, boolean debug){
+		doCommand(input, debug);
+		for(String x : consoleOutput){
+			if(x.startsWith("\u0001")){
+				console.setText("");
+				try{
+					console.append(x.substring(1));
+				} catch(Exception e){
+					//Hi
+				}
+			} else {
+				console.append(x);
+			}
+			consoleOutput.clear();
+		}
+	}
+	public static void doCommand(String input, boolean debug){
 		char[] in = input.toCharArray();
 		boolean inVar = false;
 		boolean escaped = false;
@@ -121,7 +135,7 @@ public class CommandParser extends Activity {
 								out.append(var);
 								temp = "";
 							} else{
-								console.append("Oi! That was not a valid variable!" + r + "Name: " + temp + r);
+								consoleOutput.add("Oi! That was not a valid variable!" + r + "Name: " + temp + r);
 								return;
 							}
 						} else{
@@ -141,22 +155,22 @@ public class CommandParser extends Activity {
 		}
 		out.append(temp);
 		if(debug){
-			debug(out.toString(), console, view);
+			debug(out.toString());
 		} else {
-			parseInput(out.toString(), console, view);
+			parseInput(out.toString());
 		}
 	}
-    private static void parseInput(String input, EditText console, View view) {
+    private static void parseInput(String input) {
         switch (input) {
             case "/ping":
-                console.append("PONG!" + r);
+                consoleOutput.add("PONG!" + r);
                 break;
             case "/pong":
-                console.append("PING!" + r);
+                consoleOutput.add("PING!" + r);
                 break;
             case "/help":
-                console.setText("");
-                console.append("COMMAND LIST:" + r
+                consoleOutput.clear();
+                consoleOutput.add("\u0001COMMAND LIST:" + r
                         + "/ping     PONG!" + r
                         + "/pong    PING!" + r
                         + "/clear     Clears the screen" + r
@@ -169,29 +183,30 @@ public class CommandParser extends Activity {
                         + "/for:[Integer],[Integer],[Integer],[Command]     Loops a command for a set number of times in certain increments" + r);
                 break;
             case "/clear":
-                console.setText("");
+                consoleOutput.clear();
+	            consoleOutput.add("\u0001");
                 break;
             case "/linebreak":
-                console.append(r);
+                consoleOutput.add(r);
                 break;
             default:
-                parseAdvanceCommand(input, console);
+                parseAdvanceCommand(input);
                 break;
         }
     }
 
-    private static void parseAdvanceCommand(String input, EditText console) {
+    private static void parseAdvanceCommand(String input) {
         if (input.startsWith("/echo:")) {
             String var = input.substring(input.indexOf(":") + 1).trim();
-            console.append(var + r);
+            consoleOutput.add(var + r);
 
         } else if (input.startsWith("/random:")) {
             try {
                 int var = Integer.parseInt(input.substring(input.lastIndexOf(":") + 1).trim());
                 Random random = new Random();
-                console.append(random.nextInt(var) + r);
+                consoleOutput.add(random.nextInt(var) + r);
             }catch(Exception p){
-                console.append("OI! That's not a integer! Try inputting a integer!" + r);
+                consoleOutput.add("OI! That's not a integer! Try inputting a integer!" + r);
             }
 
 
@@ -208,10 +223,10 @@ public class CommandParser extends Activity {
 
                 while(var1 != 0){
                     var1--;
-                    parseInput(cmd,console,null);
+                    parseInput(cmd);
                 }
             }catch (Exception p){
-                console.append("OI! There is an error with your loop statement!" + r);
+                consoleOutput.add("OI! There is an error with your loop statement!" + r);
             }
 
         }else if (input.startsWith("/for:")) {
@@ -223,48 +238,63 @@ public class CommandParser extends Activity {
                 int var3 =  Integer.parseInt(vars[2]);
                 String cmd = vars[3];
                 for (int var1 = Integer.parseInt(vars[0]); var1 < var2; var1 += var3) {
-                    parseInput(cmd, console, null);
+                    parseInput(cmd);
                 }
             } catch (Exception p) {
-                console.append("OI! There is an error with your for statement!" + r);
+                consoleOutput.add("OI! There is an error with your for statement!" + r);
             }
         }else if (input.startsWith("/String:")) {
             try {
                 String[] vars = input.replaceFirst(":", "\u0000").split("\u0000")[1].split(",");
                 String name = vars[0];
                 String string = vars[1];
-				booleanlist.remove(name);
-				intlist.remove(name);
-                stringlist.put(name, string);
-                MainActivity.console.append("String " + name + " set to " + string + r);
+	            if(string.startsWith("(")){
+		            doCommand(string.substring(1, string.length()-1), false);
+		            string = consoleOutput.remove(consoleOutput.size()-1);
+	            }
+				booleanList.remove(name);
+				intList.remove(name);
+                stringList.put(name, string);
+                consoleOutput.add("String " + name + " set to " + string + r);
             } catch (Exception p) {
-                console.append("OI! There is an error with your String declaration statement!" + r);
+                consoleOutput.add("OI! There is an error with your String declaration statement!" + r);
             }
 
         }else if (input.startsWith("/Int:")) {
             try {
                 String[] vars = input.replaceFirst(":", "\u0000").split("\u0000")[1].split(",");
                 String name = vars[0];
-                int integer = Integer.parseInt(vars[1]);
-				booleanlist.remove(name);
-				stringlist.remove(name);
-                intlist.put(name, integer);
-                MainActivity.console.append("Integer " + name + " set to " + integer + r);
+	            String string = vars[1];
+	            if(string.startsWith("(")){
+		            doCommand(string.substring(1, string.length()-1), false);
+		            string = consoleOutput.remove(consoleOutput.size()-1);
+	            }
+                int integer = Integer.parseInt(string.trim());
+
+				booleanList.remove(name);
+				stringList.remove(name);
+                intList.put(name, integer);
+                consoleOutput.add("Integer " + name + " set to " + integer + r);
             } catch (Exception p) {
-                console.append("OI! There is an error with your Integer declaration statement!" + r);
+                consoleOutput.add("OI! There is an error with your Integer declaration statement!" + r);
             }
 
         }else if (input.startsWith("/Boolean:")) {
             try {
                 String[] vars = input.replaceFirst(":", "\u0000").split("\u0000")[1].split(",");
                 String name = vars[0];
-                boolean b = Boolean.parseBoolean(vars[1]);
-				stringlist.remove(name);
-				intlist.remove(name);
-                booleanlist.put(name, b);
-                MainActivity.console.append("Boolean " + name + " set to " + b + r);
+	            String string = vars[1];
+	            if(string.startsWith("(")){
+		            doCommand(string.substring(1, string.length()-1), false);
+		            string = consoleOutput.remove(consoleOutput.size()-1);
+	            }
+                boolean b = Boolean.parseBoolean(string.trim());
+				stringList.remove(name);
+				intList.remove(name);
+                booleanList.put(name, b);
+                consoleOutput.add("Boolean " + name + " set to " + b + r);
             } catch (Exception p) {
-                console.append("OI! There is an error with your Boolean declaration statement!" + r);
+                consoleOutput.add("OI! There is an error with your Boolean declaration statement!" + r);
             }
 
         }else if (input.startsWith("/gettime:")) {
@@ -272,9 +302,9 @@ public class CommandParser extends Activity {
             try {
                 DateFormat df = new SimpleDateFormat(var);
                 Date dateobj = new Date();
-                console.append(df.format(dateobj) + r);
+                consoleOutput.add(df.format(dateobj) + r);
             }catch (Exception p){
-                console.append("OI! That's not a proper date String! Try inputting a date String!" + r);
+                consoleOutput.add("OI! That's not a proper date String! Try inputting a date String!" + r);
             }
 
         }else if(input.startsWith("/if:")) {
@@ -297,7 +327,6 @@ public class CommandParser extends Activity {
                 try{
                     while (x < cmd.length()) {
                         char y = cmd.charAt(x++);
-                        System.out.println("Processing char: "+y);
                         switch (y) {
                             case '(':
                                 if (++depth != 1) {
@@ -310,11 +339,9 @@ public class CommandParser extends Activity {
                                 } else {
                                     if (onCondition2) {
                                         condition2.put(temp);
-                                        System.out.println("Put command " + temp + " in condition 2");
                                         temp = "";
                                     } else {
                                         condition1.put(temp);
-                                        System.out.println("Put command " + temp + " in condition 1");
                                         temp = "";
                                     }
                                 }
@@ -361,54 +388,54 @@ public class CommandParser extends Activity {
                         throw new ArrayIndexOutOfBoundsException();
                     }
                 } catch(ArrayIndexOutOfBoundsException e){
-                    console.append("OI! You didn't close your conditions on your if statements" + r);
+                    consoleOutput.add("OI! You didn't close your conditions on your if statements" + r);
                 }
                 switch(operator){
                     case "=":
                     if(var1 == var2){
-                        condition1.run(console);
+                        condition1.run();
                     } else {
-                        condition2.run(console);
+                        condition2.run();
                     }
                     break;
 
                     case "<":
                     if(var1 < var2){
-                        condition1.run(console);
+                        condition1.run();
                     } else {
-                        condition2.run(console);
+                        condition2.run();
                     }
                     break;
 
                     case ">":
                     if(var1 > var2){
-                        condition1.run(console);
+                        condition1.run();
                     } else {
-                        condition2.run(console);
+                        condition2.run();
                     }
                     break;
 
                     case "<=":
                     if(var1 <= var2){
-                        condition1.run(console);
+                        condition1.run();
                     } else {
-                        condition2.run(console);
+                        condition2.run();
                     }
                     break;
 
                     case ">=":
                    if(var1 >= var2){
-                       condition1.run(console);
+                       condition1.run();
                    } else {
-                       condition2.run(console);
+                       condition2.run();
                    }
                     break;
                 }
             }catch (Exception p){
-                console.append("OI! There is an error with your if statement!" + r);
+                consoleOutput.add("OI! There is an error with your if statement!" + r);
             }
         }else{
-            console.append("OI! Command not valid!" + r);
+            consoleOutput.add("OI! Command not valid!" + r);
         }
     }
 }

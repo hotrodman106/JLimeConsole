@@ -138,7 +138,7 @@ public class MainActivity extends ActionBarActivity{
 
     public static void submit(View view) {
         if (!input.getText().toString().equals("")) {
-            CommandParser.inputCommand(input.getText().toString(), console, view, true);
+            CommandParser.inputCommand(input.getText().toString(), console, true);
             input.setText("");
         }
     }
