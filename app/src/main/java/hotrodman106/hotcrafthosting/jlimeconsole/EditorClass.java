@@ -56,8 +56,8 @@ public class EditorClass extends ActionBarActivity{
 		Intent data = new Intent();
 		data.putExtra("code", ((EditText) findViewById(R.id.in)).getText().toString());
 		setResult(0, data);
-		overridePendingTransition(R.anim.left_in, R.anim.right_out);
 		finish();
+	    overridePendingTransition(R.anim.left_in, R.anim.right_out);
     }
 
 	@Override

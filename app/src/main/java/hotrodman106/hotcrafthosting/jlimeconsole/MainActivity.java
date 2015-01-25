@@ -45,7 +45,7 @@ public class MainActivity extends ActionBarActivity{
 		}
 		switch(resultCode){
 			case 0:
-				CommandParser.inputCommand(code, console, false);
+				CommandParser.inputCommand(code.split("\n"), console, false);
 				break;
 			default:
 				break;

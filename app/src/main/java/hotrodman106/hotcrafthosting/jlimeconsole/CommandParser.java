@@ -45,8 +45,7 @@ public class CommandParser{
 			stringBuilderList.add(new StringBuilder());
 			String[] in = s.replaceFirst(":", "\u0000").split("\u0000");
 			multiCommandList.get(0).put(new Command(in[0]));
-			int y = doCommand(in[0], in[1], 0, debug);
-			consoleOutput.clear();
+			int y = doCommand(in[0], (in.length == 2 ? in[1] : null), 0, debug);
 			multiCommandList.clear();
 			stringBuilderList.clear();
 			parsed = false;
@@ -70,6 +69,7 @@ public class CommandParser{
 				console.append(x);
 			}
 		}
+		consoleOutput.clear();
 	}
 	public static void inputCommand(String input, EditText console, boolean debug){
 		multiCommandList.add(new MultiCommand(debug));
