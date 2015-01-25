@@ -51,17 +51,15 @@ public class EditorClass extends ActionBarActivity{
     }
 
     public void run (View view){
-        MultiCommand cmd = new MultiCommand();
         EditText limeInput = (EditText) findViewById(R.id.in);
-        String[] lines = limeInput.getText().toString().split(System.getProperty("line.separator"));
-        for(int x = 0; x < lines.length; x++){
-            cmd.put(lines[x]);
-        }
         //XXX
         //Tis a little sketchy
         super.onBackPressed();
         overridePendingTransition(R.anim.left_in, R.anim.right_out);
-        cmd.run();
+	    String[] lines = limeInput.getText().toString().split("\n");
+	    for(int x = 0; x < lines.length; x++){
+		    CommandParser.inputCommand(lines[x], (EditText) findViewById(R.id.consoleView), false);
+	    }
     }
 
 	@Override
