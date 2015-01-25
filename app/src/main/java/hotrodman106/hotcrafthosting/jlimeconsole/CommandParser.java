@@ -76,7 +76,7 @@ public class CommandParser{
 		stringBuilderList.add(new StringBuilder());
 		String[] in = input.replaceFirst(":", "\u0000").split("\u0000");
 		multiCommandList.get(0).put(new Command(in[0]));
-		doCommand(in[0], in[1], 0, debug);
+		doCommand(in[0], (in.length == 2 ? in[1] : null), 0, debug);
 		for(String x : consoleOutput){
 			if(x.startsWith("\u0001")){
 				console.setText("");
@@ -183,6 +183,9 @@ public class CommandParser{
 		return multiCommandList.get(startDepth).run(startDepth);
 	}
 	public static int doCommand(String cmd, String[] args, int startDepth, boolean debug){
+		if(cmd.startsWith("!")){
+			return header(cmd, args);
+		}
 		if(debug){
 			return debug(cmd, args, startDepth);
 		}
@@ -190,20 +193,30 @@ public class CommandParser{
 	}
 	public static int doCommand(String cmd, int startDepth){
 		if(cmd.startsWith("\u0005")){
-			consoleOutput.add(getOut(cmd, startDepth));
+			return getOut(cmd, startDepth);
 		}
 		return parseInput(cmd, null, startDepth);
 	}
-	//TODO REWRITE
-	private static String getOut(String code, int startDepth){
+
+	private static int getOut(String code, int startDepth){
 		int intCode = Integer.parseInt(code.substring(code.indexOf('\u0005')+1, code.indexOf('\u0006')));
 		return getOut(intCode, startDepth);
 	}
-	//TODO REWRITE
-	private static String getOut(int code, int startDepth){
-		multiCommandList.get(code).run(startDepth);
-		return consoleOutput.remove(consoleOutput.size()-1);
+	private static int getOut(int code, int startDepth){
+		return multiCommandList.get(code).run(startDepth);
 	}
+
+	private static int header(String cmd, String[]args){
+		try{
+			//TODO MODULES
+			throw new Exception("bleh");
+		} catch(Exception e){
+			consoleOutput.add("ERROR WITH HEADER COMMAND");
+			return -2;
+		}
+		//return -1;
+	}
+
 	private static int debug(String cmd, String[] args, int startDepth){
 		switch (cmd){
 			case "/debug.close":
@@ -450,15 +463,32 @@ public class CommandParser{
 					    consoleOutput.add("OI! There is an error with your if statement!" + r);
 					    return -2;
 				    }
-			    case "\u0002":
-				    break;
-			    case "/goto":
-				    int x = Integer.parseInt(args[0].trim());
-				    if(x < 0){
-					    consoleOutput.add("OI! There is no such thing as a negative line!" + r);
-					    return -2;
-				    }
-				    return x-1;
+				case "\u0002":
+					break;
+				case "/goto":
+					try{
+						int x = Integer.parseInt(args[0].trim());
+						if(x < 0){
+							consoleOutput.add("OI! There is no such thing as a negative line!" + r);
+							return -2;
+						}
+						return x - 1;
+					} catch(Exception e){
+						consoleOutput.add("OI! Not a valid integer");
+						return -2;
+					}
+				case "/last":
+					try{
+						int x = Integer.parseInt(args[0].trim()) - 1;
+						while(x > 0){
+							consoleOutput.remove(consoleOutput.size()-1);
+							x--;
+						}
+					} catch(Exception e){
+						consoleOutput.add("OI! Not a valid integer");
+						return -2;
+					}
+					break;
 			    default:
 				    consoleOutput.add("OI! Command not valid!" + r);
 		    }

@@ -45,9 +45,7 @@ public class MainActivity extends ActionBarActivity{
 		}
 		switch(resultCode){
 			case 0:
-				for(String s : code.split("\r")){
-					CommandParser.inputCommand(s, console, false);
-				}
+				CommandParser.inputCommand(code, console, false);
 				break;
 			default:
 				break;
