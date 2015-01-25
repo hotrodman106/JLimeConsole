@@ -25,10 +25,14 @@ public class MultiCommand {
 	public int size(){
 		return commands.size();
 	}
-	public void run(int level){
+	public int run(int level){
 		for(Command c : commands){
 			System.out.println(c);
-			CommandParser.doCommand(c, level, this.debug);
+			int ret = CommandParser.doCommand(c, level, this.debug);
+			if(ret != -1){
+				return ret;
+			}
 		}
+		return -1;
 	}
 }

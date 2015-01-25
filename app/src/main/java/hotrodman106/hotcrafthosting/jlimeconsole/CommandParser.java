@@ -38,6 +38,39 @@ public class CommandParser{
 		}
 		return null;
 	}
+	public static void inputCommand(String[] input, EditText console, boolean debug){
+		for(int x = 0; x < input.length; x++){
+			String s = input[x];
+			multiCommandList.add(new MultiCommand(debug));
+			stringBuilderList.add(new StringBuilder());
+			String[] in = s.replaceFirst(":", "\u0000").split("\u0000");
+			multiCommandList.get(0).put(new Command(in[0]));
+			int y = doCommand(in[0], in[1], 0, debug);
+			consoleOutput.clear();
+			multiCommandList.clear();
+			stringBuilderList.clear();
+			parsed = false;
+			if(y != -1){
+				if(y == -2){
+					consoleOutput.add("Error at line "+x+r);
+					break;
+				}
+				x = y-1;
+			}
+		}
+		for(String x : consoleOutput){
+			if(x.startsWith("\u0001")){
+				console.setText("");
+				try{
+					console.append(x.substring(1));
+				} catch(Exception e){
+					//Hi
+				}
+			} else {
+				console.append(x);
+			}
+		}
+	}
 	public static void inputCommand(String input, EditText console, boolean debug){
 		multiCommandList.add(new MultiCommand(debug));
 		stringBuilderList.add(new StringBuilder());
@@ -61,10 +94,10 @@ public class CommandParser{
 		stringBuilderList.clear();
 		parsed = false;
 	}
-	public static void doCommand(Command c, int startDepth, boolean debug){
-		doCommand(c.getCmd(), c.getArgs(), startDepth, debug);
+	public static int doCommand(Command c, int startDepth, boolean debug){
+		return doCommand(c.getCmd(), c.getArgs(), startDepth, debug);
 	}
-	public static void doCommand(String cmd, String args, int startDepth, boolean debug){
+	public static int doCommand(String cmd, String args, int startDepth, boolean debug){
 		if(!parsed && args != null){
 			char[] in = args.toCharArray();
 			boolean inVar = false;
@@ -92,7 +125,7 @@ public class CommandParser{
 									temp = "";
 								} else {
 									consoleOutput.add("Oi! That was not a valid variable!" + r + "Name: " + temp + r);
-									return;
+									return -2;
 								}
 							} else {
 								inVar = true;
@@ -132,7 +165,7 @@ public class CommandParser{
 						case ':':
 							if(command != null){
 								consoleOutput.add("OI! You have : where you already have declared a command!" + r);
-								return;
+								return -2;
 							}
 							multiCommandList.get(depth.get(level)).put(new Command(temp));
 							command = temp;
@@ -147,31 +180,31 @@ public class CommandParser{
 			multiCommandList.get(startDepth).get(commandDepth.get(level)).addArg(stringBuilderList.get(startDepth).append(temp).toString());
 			parsed = true;
 		}
-		multiCommandList.get(startDepth).run(startDepth);
+		return multiCommandList.get(startDepth).run(startDepth);
 	}
-	public static void doCommand(String cmd, String[] args, int startDepth, boolean debug){
+	public static int doCommand(String cmd, String[] args, int startDepth, boolean debug){
 		if(debug){
-			debug(cmd, args, startDepth);
-		} else {
-			parseInput(cmd, args, startDepth);
+			return debug(cmd, args, startDepth);
 		}
+		return parseInput(cmd, args, startDepth);
 	}
-	public static void doCommand(String cmd, int startDepth){
+	public static int doCommand(String cmd, int startDepth){
 		if(cmd.startsWith("\u0005")){
 			consoleOutput.add(getOut(cmd, startDepth));
-		} else {
-			parseInput(cmd, null, startDepth);
 		}
+		return parseInput(cmd, null, startDepth);
 	}
+	//TODO REWRITE
 	private static String getOut(String code, int startDepth){
 		int intCode = Integer.parseInt(code.substring(code.indexOf('\u0005')+1, code.indexOf('\u0006')));
 		return getOut(intCode, startDepth);
 	}
+	//TODO REWRITE
 	private static String getOut(int code, int startDepth){
 		multiCommandList.get(code).run(startDepth);
 		return consoleOutput.remove(consoleOutput.size()-1);
 	}
-	private static void debug(String cmd, String[] args, int startDepth){
+	private static int debug(String cmd, String[] args, int startDepth){
 		switch (cmd){
 			case "/debug.close":
 				System.exit(0);
@@ -229,10 +262,11 @@ public class CommandParser{
 				}
 				break;
 			default:
-				parseInput(cmd, args, startDepth);
+				return parseInput(cmd, args, startDepth);
 		}
+		return -1;
 	}
-    private static void parseInput(String cmd, String[] args, int startDepth) {
+    private static int parseInput(String cmd, String[] args, int startDepth) {
         switch (cmd) {
             case "/ping":
                 consoleOutput.add("PONG!" + r);
@@ -262,11 +296,11 @@ public class CommandParser{
                 consoleOutput.add(r);
                 break;
             default:
-                parseAdvanceCommand(cmd, args, startDepth);
-                break;
+                return parseAdvanceCommand(cmd, args, startDepth);
         }
+	    return -1;
     }
-    private static void parseAdvanceCommand(String cmd, String[] args, int startDepth) {
+    private static int parseAdvanceCommand(String cmd, String[] args, int startDepth) {
 	    try{
 		    switch(cmd){
 			    case "/echo":
@@ -279,6 +313,7 @@ public class CommandParser{
 					    consoleOutput.add(random.nextInt(var) + r);
 				    } catch(Exception p){
 					    consoleOutput.add("OI! That's not a integer! Try inputting a integer!" + r);
+					    return -2;
 				    }
 				    break;
 			    case "/loop":
@@ -291,6 +326,7 @@ public class CommandParser{
 					    }
 				    } catch(Exception p){
 					    consoleOutput.add("OI! There is an error with your loop statement!" + r);
+					    return -2;
 				    }
 				    break;
 			    case "/for":
@@ -303,6 +339,7 @@ public class CommandParser{
 					    }
 				    } catch(Exception p){
 					    consoleOutput.add("OI! There is an error with your for statement!" + r);
+					    return -2;
 				    }
 				    break;
 			    case "/String":
@@ -316,6 +353,7 @@ public class CommandParser{
 					    consoleOutput.add("String " + name + " set to " + string + r);
 				    } catch(Exception p){
 					    consoleOutput.add("OI! There is an error with your String declaration statement!" + r);
+					    return -2;
 				    }
 				    break;
 			    case "/Int":
@@ -329,6 +367,7 @@ public class CommandParser{
 					    consoleOutput.add("Integer " + name + " set to " + integer + r);
 				    } catch(Exception p){
 					    consoleOutput.add("OI! There is an error with your Integer declaration statement!" + r);
+					    return -2;
 				    }
 				    break;
 			    case "/Boolean":
@@ -342,6 +381,7 @@ public class CommandParser{
 					    consoleOutput.add("Boolean " + name + " set to " + b + r);
 				    } catch(Exception p){
 					    consoleOutput.add("OI! There is an error with your Boolean declaration statement!" + r);
+					    return -2;
 				    }
 				    break;
 			    case "/getTime":
@@ -351,6 +391,7 @@ public class CommandParser{
 					    consoleOutput.add(df.format(dateObj) + r);
 				    } catch(Exception p){
 					    consoleOutput.add("OI! That's not a proper date String! Try inputting a date String!" + r);
+					    return -2;
 				    }
 				    break;
 			    case "/if":
@@ -369,56 +410,62 @@ public class CommandParser{
 					    switch(operator){
 						    case "=":
 							    if(var1 == var2){
-								    doCommand(trueCommand, startDepth);
+								    return doCommand(trueCommand, startDepth);
 							    } else {
-								    doCommand(falseCommand, startDepth);
+								    return doCommand(falseCommand, startDepth);
 							    }
-							    break;
 
 						    case "<":
 							    if(var1 < var2){
-								    doCommand(trueCommand, startDepth);
+								    return doCommand(trueCommand, startDepth);
 							    } else {
-								    doCommand(falseCommand, startDepth);
+								    return doCommand(falseCommand, startDepth);
 							    }
-							    break;
 
 						    case ">":
 							    if(var1 > var2){
-								    doCommand(trueCommand, startDepth);
+								    return doCommand(trueCommand, startDepth);
 							    } else {
-								    doCommand(falseCommand, startDepth);
+								    return doCommand(falseCommand, startDepth);
 							    }
-							    break;
 
 						    case "<=":
 							    if(var1 <= var2){
-								    doCommand(trueCommand, startDepth);
+								    return doCommand(trueCommand, startDepth);
 							    } else {
-								    doCommand(falseCommand, startDepth);
+								    return doCommand(falseCommand, startDepth);
 							    }
-							    break;
 
 						    case ">=":
 							    if(var1 >= var2){
-								    doCommand(trueCommand, startDepth);
+								    return doCommand(trueCommand, startDepth);
 							    } else {
-								    doCommand(falseCommand, startDepth);
+								    return doCommand(falseCommand, startDepth);
 							    }
-							    break;
+						    default:
+							    consoleOutput.add("OI! Invalid Operator for your if statement!" + r);
+							    return -2;
 					    }
 				    } catch(Exception p){
 					    consoleOutput.add("OI! There is an error with your if statement!" + r);
-					    p.printStackTrace();
+					    return -2;
 				    }
-				    break;
 			    case "\u0002":
 				    break;
+			    case "/goto":
+				    int x = Integer.parseInt(args[0].trim());
+				    if(x < 0){
+					    consoleOutput.add("OI! There is no such thing as a negative line!" + r);
+					    return -2;
+				    }
+				    return x-1;
 			    default:
 				    consoleOutput.add("OI! Command not valid!" + r);
 		    }
 	    } catch(ArrayIndexOutOfBoundsException e){
 		    consoleOutput.add("OI! A command didn't have the right number of arguments!" + r);
+		    return -2;
 	    }
+	    return -1;
     }
 }
