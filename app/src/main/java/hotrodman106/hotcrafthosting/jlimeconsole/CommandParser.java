@@ -144,7 +144,6 @@ public class CommandParser{
 					}
 				}
 			}
-			parsed = parsed;
 			multiCommandList.get(startDepth).get(commandDepth.get(level)).addArg(stringBuilderList.get(startDepth).append(temp).toString());
 			parsed = true;
 		}
