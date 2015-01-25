@@ -22,6 +22,8 @@ public class MainActivity extends ActionBarActivity{
     public static EditText input;
     public static Intent i;
 
+	private String code = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +36,23 @@ public class MainActivity extends ActionBarActivity{
                     .commit();
         }
     }
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data){
+		code = data.getStringExtra("code");
+		if(code == null){
+			return;
+		}
+		switch(resultCode){
+			case 0:
+				for(String s : code.split("\r")){
+					CommandParser.inputCommand(s, console, false);
+				}
+				break;
+			default:
+				break;
+		}
+	}
 
 
     @Override
@@ -53,13 +72,14 @@ public class MainActivity extends ActionBarActivity{
 
         switch (id) {
             case R.id.limeEdit:
-                Intent launchactivity= new Intent(MainActivity.this,EditorClass.class);
-                startActivity(launchactivity);
+                Intent launchActivity= new Intent(MainActivity.this,EditorClass.class);
+				launchActivity.putExtra("code", code);
+                startActivityForResult(launchActivity, 0);
                 overridePendingTransition(R.anim.right_in, R.anim.left_out);
                 return true;
             case R.id.settings:
-                Intent launchactivity2 = new Intent(MainActivity.this,SettingsActivity.class);
-                startActivity(launchactivity2);
+                Intent launchActivity2 = new Intent(MainActivity.this,SettingsActivity.class);
+                startActivity(launchActivity2);
                 overridePendingTransition(R.anim.left_in, R.anim.right_out);
                 return true;
             default:

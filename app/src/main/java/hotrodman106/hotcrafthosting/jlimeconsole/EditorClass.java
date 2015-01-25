@@ -22,10 +22,10 @@ public class EditorClass extends ActionBarActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor_class);
+		((EditText) findViewById(R.id.in)).setText(getIntent().getStringExtra("code"));
     }
 
-
-    @Override
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_editor_class, menu);
@@ -38,8 +38,10 @@ public class EditorClass extends ActionBarActivity{
 
         switch (id) {
             case R.id.consoleView:
-                Intent launchActivity= new Intent(EditorClass.this,MainActivity.class);
-                startActivity(launchActivity);
+				Intent data = new Intent();
+				data.putExtra("code", ((EditText) findViewById(R.id.in)).getText().toString());
+				setResult(1, data);
+				finish();
                 return true;
             case R.id.settings:
                 Intent launchActivity2= new Intent(EditorClass.this,SettingsActivity.class);
@@ -51,15 +53,11 @@ public class EditorClass extends ActionBarActivity{
     }
 
     public void run (View view){
-        EditText limeInput = (EditText) findViewById(R.id.in);
-        //XXX
-        //Tis a little sketchy
-        super.onBackPressed();
-        overridePendingTransition(R.anim.left_in, R.anim.right_out);
-	    String[] lines = limeInput.getText().toString().split("\n");
-	    for(int x = 0; x < lines.length; x++){
-		    CommandParser.inputCommand(lines[x], (EditText) findViewById(R.id.consoleView), false);
-	    }
+		Intent data = new Intent();
+		data.putExtra("code", ((EditText) findViewById(R.id.in)).getText().toString());
+		setResult(0, data);
+		overridePendingTransition(R.anim.left_in, R.anim.right_out);
+		finish();
     }
 
 	@Override

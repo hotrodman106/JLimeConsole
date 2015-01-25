@@ -65,7 +65,7 @@ public class CommandParser{
 		doCommand(c.getCmd(), c.getArgs(), startDepth, debug);
 	}
 	public static void doCommand(String cmd, String args, int startDepth, boolean debug){
-		if(!parsed){
+		if(!parsed && args != null){
 			char[] in = args.toCharArray();
 			boolean inVar = false;
 			boolean escaped = false;
@@ -144,6 +144,7 @@ public class CommandParser{
 					}
 				}
 			}
+			parsed = parsed;
 			multiCommandList.get(startDepth).get(commandDepth.get(level)).addArg(stringBuilderList.get(startDepth).append(temp).toString());
 			parsed = true;
 		}
@@ -416,10 +417,9 @@ public class CommandParser{
 				    break;
 			    default:
 				    consoleOutput.add("OI! Command not valid!" + r);
-		        }
-		    } catch(ArrayIndexOutOfBoundsException e){
-			    consoleOutput.add("OI! A command didn't have the right number of arguments!" + r);
 		    }
+	    } catch(ArrayIndexOutOfBoundsException e){
+		    consoleOutput.add("OI! A command didn't have the right number of arguments!" + r);
 	    }
     }
 }
