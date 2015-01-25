@@ -1,7 +1,5 @@
 package hotrodman106.hotcrafthosting.jlimeconsole;
 
-import android.widget.EditText;
-
 import java.util.ArrayList;
 
 /**
@@ -10,19 +8,27 @@ import java.util.ArrayList;
  * @author Coolway99 (xxcoolwayxx@gmail.com)
  */
 public class MultiCommand {
-    private final ArrayList<String> commandList = new ArrayList<String>();
-    public void put(int index, String cmd){
-        commandList.add(index, cmd);
-    }
-    public void put(String cmd){
-        System.out.println(cmd);
-        this.put(commandList.size(), cmd);
-    }
-    public void run(EditText console){
-        for(String s : commandList){
-            System.out.println(s);
-
-            CommandParser.parseInput(s, console, null);
-        }
-    }
+	private final ArrayList<Command> commands = new ArrayList<>();
+	private final boolean debug;
+	public MultiCommand(boolean debug){
+		this.debug = debug;
+	}
+	public void put(String cmd, String[] args){
+		this.put(new Command(cmd, args));
+	}
+	public void put(Command c){
+		commands.add(c);
+	}
+	public Command get(int index){
+		return commands.get(index);
+	}
+	public int size(){
+		return commands.size();
+	}
+	public void run(int level){
+		for(Command c : commands){
+			System.out.println(c);
+			CommandParser.doCommand(c, level, this.debug);
+		}
+	}
 }

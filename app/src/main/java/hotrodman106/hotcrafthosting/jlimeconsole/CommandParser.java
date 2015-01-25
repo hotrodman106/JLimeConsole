@@ -1,48 +1,249 @@
 package hotrodman106.hotcrafthosting.jlimeconsole;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Random;
-
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.EditText;
 
-/**
- * Created by hotrodman106 on 1/1/2015.
- */
-public class CommandParser {
-    private static final String r = "\n";
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Random;
 
-    /**
-     * @param input   The input String to be parsed
-     * @param console   The Editext used to show outputed data
-     * @param view    The view of the android project
-     */
-    public static void parseInput(String input, EditText console, View view) {
-        switch (input) {
+/**
+ * Created by hotrodman106 and Coolway99 on 1/1/2015.
+ */
+public class CommandParser{
+    private static final String r = "\n";
+    private static HashMap<String,String> stringList = new HashMap<>();
+    private static HashMap<String,Integer> intList = new HashMap<>();
+    private static HashMap<String,Boolean> booleanList = new HashMap<>();
+	private static ArrayList<String> consoleOutput = new ArrayList<>();
+	/*
+	 * \u0005<index>\u0006 will reference the multiCommand with the specified index
+	 */
+	private static ArrayList<MultiCommand> multiCommandList = new ArrayList<>();
+	private static ArrayList<StringBuilder> stringBuilderList = new ArrayList<>();
+	private static boolean parsed = false;
+
+
+	private static String getVar(String key){
+		if(stringList.get(key) != null){
+			return stringList.get(key);
+		}
+		if(intList.get(key) != null){
+			return Integer.toString(intList.get(key));
+		}
+		if(booleanList.get(key) != null){
+			return Boolean.toString(booleanList.get(key));
+		}
+		return null;
+	}
+	public static void inputCommand(String input, EditText console, boolean debug){
+		multiCommandList.add(new MultiCommand(debug));
+		stringBuilderList.add(new StringBuilder());
+		String[] in = input.replaceFirst(":", "\u0000").split("\u0000");
+		multiCommandList.get(0).put(new Command(in[0]));
+		doCommand(in[0], in[1], 0, debug);
+		for(String x : consoleOutput){
+			if(x.startsWith("\u0001")){
+				console.setText("");
+				try{
+					console.append(x.substring(1));
+				} catch(Exception e){
+					//Hi
+				}
+			} else {
+				console.append(x);
+			}
+		}
+		consoleOutput.clear();
+		multiCommandList.clear();
+		stringBuilderList.clear();
+		parsed = false;
+	}
+	public static void doCommand(Command c, int startDepth, boolean debug){
+		doCommand(c.getCmd(), c.getArgs(), startDepth, debug);
+	}
+	public static void doCommand(String cmd, String args, int startDepth, boolean debug){
+		if(!parsed && args != null){
+			char[] in = args.toCharArray();
+			boolean inVar = false;
+			boolean escaped = false;
+			String temp = "";
+			String command = null;
+			ArrayList<Integer> depth = new ArrayList<>();
+			ArrayList<Integer> commandDepth = new ArrayList<>();
+			int level = 0;
+			depth.add(startDepth);
+			commandDepth.add(0);
+			for(int x = 0; x < in.length; x++){
+				char y = in[x];
+				if(escaped){
+					temp += y;
+					escaped = false;
+				} else {
+					switch(y){
+						case '%':
+							if(inVar){
+								inVar = false;
+								String var = getVar(temp);
+								if(var != null){
+									stringBuilderList.get(depth.get(level)).append(var);
+									temp = "";
+								} else {
+									consoleOutput.add("Oi! That was not a valid variable!" + r + "Name: " + temp + r);
+									return;
+								}
+							} else {
+								inVar = true;
+								temp = "";
+							}
+							break;
+						case '\\':
+							escaped = true;
+							break;
+						case '(':
+							multiCommandList.add(new MultiCommand(debug));
+							stringBuilderList.add(new StringBuilder());
+							depth.add(stringBuilderList.size() - 1);
+							stringBuilderList.get(depth.get(level++)).append(temp);
+							commandDepth.add(0);
+							temp = "";
+							command = null;
+							break;
+						case ')':
+							multiCommandList.get(depth.get(level)).get(commandDepth.remove(level)).addArg(stringBuilderList.get(depth.get(level)).append(temp).toString());
+							stringBuilderList.get(depth.get(level-1)).append("\u0005" + depth.remove(level--) + "\u0006");
+							command = null;
+							temp = "";
+							break;
+						case '&':
+							multiCommandList.get(depth.get(level)).get(commandDepth.get(level)).addArg(stringBuilderList.get(depth.get(level)).append(temp).toString());
+							stringBuilderList.set(depth.get(level), new StringBuilder());
+							commandDepth.set(level, commandDepth.get(level)+1);
+							command = null;
+							temp = "";
+							break;
+						case ',':
+							multiCommandList.get(depth.get(level)).get(commandDepth.get(level)).addArg(stringBuilderList.get(depth.get(level)).append(temp).toString());
+							stringBuilderList.set(depth.get(level), new StringBuilder());
+							temp = "";
+							break;
+						case ':':
+							if(command != null){
+								consoleOutput.add("OI! You have : where you already have declared a command!" + r);
+								return;
+							}
+							multiCommandList.get(depth.get(level)).put(new Command(temp));
+							command = temp;
+							temp = "";
+							break;
+						default:
+							temp += y;
+							break;
+					}
+				}
+			}
+			parsed = parsed;
+			multiCommandList.get(startDepth).get(commandDepth.get(level)).addArg(stringBuilderList.get(startDepth).append(temp).toString());
+			parsed = true;
+		}
+		multiCommandList.get(startDepth).run(startDepth);
+	}
+	public static void doCommand(String cmd, String[] args, int startDepth, boolean debug){
+		if(debug){
+			debug(cmd, args, startDepth);
+		} else {
+			parseInput(cmd, args, startDepth);
+		}
+	}
+	public static void doCommand(String cmd, int startDepth){
+		if(cmd.startsWith("\u0005")){
+			consoleOutput.add(getOut(cmd, startDepth));
+		} else {
+			parseInput(cmd, null, startDepth);
+		}
+	}
+	private static String getOut(String code, int startDepth){
+		int intCode = Integer.parseInt(code.substring(code.indexOf('\u0005')+1, code.indexOf('\u0006')));
+		return getOut(intCode, startDepth);
+	}
+	private static String getOut(int code, int startDepth){
+		multiCommandList.get(code).run(startDepth);
+		return consoleOutput.remove(consoleOutput.size()-1);
+	}
+	private static void debug(String cmd, String[] args, int startDepth){
+		switch (cmd){
+			case "/debug.close":
+				System.exit(0);
+				break;
+			case "/debug.getVar":
+				try{
+					String name = args[0];
+					if(stringList.get(name) == null){
+						if(booleanList.get(name) == null){
+							if(intList.get(name) == null){
+								consoleOutput.add("There is no variable in memory by that name!" + r);
+							} else {
+								consoleOutput.add(intList.get(name) + r);
+							}
+						} else {
+							consoleOutput.add(booleanList.get(name) + r);
+						}
+					} else {
+						consoleOutput.add(stringList.get(name) + r);
+					}
+				} catch (Exception p){
+					consoleOutput.add("OI! There is an error with your get variable command!" + r);
+				}
+				break;
+			case "/debug.clearVar":
+				try{
+					String name = args[0];
+					if(stringList.remove(name) == null && booleanList.remove(name) == null && intList.remove(name) == null){
+						consoleOutput.add("There is no variable in memory by that name!" + r);
+					} else{
+						consoleOutput.add("Variable " + name + " removed from memory!" + r);
+					}
+				} catch(Exception p){
+					consoleOutput.add("OI! There is an error with your clear variable command!" + r);
+				}
+				break;
+			case "/debug.varType":
+				try{
+					String name = args[0];
+					if(stringList.get(name) == null){
+						if(booleanList.get(name) == null){
+							if(intList.get(name) == null){
+								consoleOutput.add("There is no variable in memory by that name!" + r);
+							} else {
+								consoleOutput.add("Variable is an Integer" + r);
+							}
+						} else {
+							consoleOutput.add("Variable is a Boolean" + r);
+						}
+					}else {
+						consoleOutput.add("Variable is a String" + r);
+					}
+				} catch(Exception e){
+					consoleOutput.add("OI! There is an error with your variable type command!" + r);
+				}
+				break;
+			default:
+				parseInput(cmd, args, startDepth);
+		}
+	}
+    private static void parseInput(String cmd, String[] args, int startDepth) {
+        switch (cmd) {
             case "/ping":
-                console.append("PONG!" + r);
+                consoleOutput.add("PONG!" + r);
                 break;
             case "/pong":
-                console.append("PING!" + r);
+                consoleOutput.add("PING!" + r);
                 break;
             case "/help":
-                console.setText("");
-                console.append("COMMAND LIST:" + r
+                consoleOutput.clear();
+                consoleOutput.add("\u0001COMMAND LIST:" + r
                         + "/ping     PONG!" + r
                         + "/pong    PING!" + r
                         + "/clear     Clears the screen" + r
@@ -51,211 +252,174 @@ public class CommandParser {
                         + "/gettime:[date String]    Outputs the date/time" + r
                         + "/random:[Integer]     Outputs a random number up to the value specified" + r
                         + "/loop:[Integer],[Command]     Loops a command a set number of times" + r
-                        + "/if:[Integer],[Integer],[<,>,=,<=,>=],([True Command]),([False Command])      Checks if a statement is true and, if so, runs a command" + r
+                        + "/if:[Integer][<,>,=,<=,>=][Integer],([True Command]),([False Command])      Checks if a statement is true and, if so, runs a command" + r
                         + "/for:[Integer],[Integer],[Integer],[Command]     Loops a command for a set number of times in certain increments" + r);
                 break;
             case "/clear":
-                console.setText("");
+                consoleOutput.clear();
+	            consoleOutput.add("\u0001");
                 break;
             case "/linebreak":
-                console.append(r);
+                consoleOutput.add(r);
                 break;
             default:
-                parseAdvanceCommand(input, console);
+                parseAdvanceCommand(cmd, args, startDepth);
                 break;
         }
     }
+    private static void parseAdvanceCommand(String cmd, String[] args, int startDepth) {
+	    try{
+		    switch(cmd){
+			    case "/echo":
+				    consoleOutput.add(args[0] + r);
+				    break;
+			    case "/random":
+				    try{
+					    int var = Integer.parseInt(args[0].trim());
+					    Random random = new Random();
+					    consoleOutput.add(random.nextInt(var) + r);
+				    } catch(Exception p){
+					    consoleOutput.add("OI! That's not a integer! Try inputting a integer!" + r);
+				    }
+				    break;
+			    case "/loop":
+				    try{
+					    int var1 = Integer.parseInt(args[0]);
+					    String command = args[1];
+					    while(var1 != 0){
+						    var1--;
+						    doCommand(command, startDepth);
+					    }
+				    } catch(Exception p){
+					    consoleOutput.add("OI! There is an error with your loop statement!" + r);
+				    }
+				    break;
+			    case "/for":
+				    try{
+					    int var2 = Integer.parseInt(args[1].trim());
+					    int var3 = Integer.parseInt(args[2].trim());
+					    String command = args[3];
+					    for(int var1 = Integer.parseInt(args[0].trim()); var1 < var2; var1 += var3){
+						    doCommand(command, startDepth);
+					    }
+				    } catch(Exception p){
+					    consoleOutput.add("OI! There is an error with your for statement!" + r);
+				    }
+				    break;
+			    case "/String":
+				    try{
+					    String name = args[0];
+					    String string = args[1];
 
-    public static void parseAdvanceCommand(String input, EditText console) {
-        if (input.startsWith("/echo:")) {
-            String var = input.substring(input.indexOf(":") + 1).trim();
-            console.append(var + r);
+					    booleanList.remove(name);
+					    intList.remove(name);
+					    stringList.put(name, string);
+					    consoleOutput.add("String " + name + " set to " + string + r);
+				    } catch(Exception p){
+					    consoleOutput.add("OI! There is an error with your String declaration statement!" + r);
+				    }
+				    break;
+			    case "/Int":
+				    try{
+					    String name = args[0];
+					    int integer = Integer.parseInt(args[1].trim());
 
-        } else if (input.startsWith("/random:")) {
-            try {
-                int var = Integer.parseInt(input.substring(input.lastIndexOf(":") + 1).trim());
-                Random random = new Random();
-                console.append(random.nextInt(var) + r);
-            }catch(Exception p){
-                console.append("OI! That's not a integer! Try inputting a integer!" + r);
-            }
+					    booleanList.remove(name);
+					    stringList.remove(name);
+					    intList.put(name, integer);
+					    consoleOutput.add("Integer " + name + " set to " + integer + r);
+				    } catch(Exception p){
+					    consoleOutput.add("OI! There is an error with your Integer declaration statement!" + r);
+				    }
+				    break;
+			    case "/Boolean":
+				    try{
+					    String name = args[0];
+					    boolean b = Boolean.parseBoolean(args[1].trim());
 
+					    stringList.remove(name);
+					    intList.remove(name);
+					    booleanList.put(name, b);
+					    consoleOutput.add("Boolean " + name + " set to " + b + r);
+				    } catch(Exception p){
+					    consoleOutput.add("OI! There is an error with your Boolean declaration statement!" + r);
+				    }
+				    break;
+			    case "/getTime":
+				    try{
+					    DateFormat df = new SimpleDateFormat(args[0]);
+					    Date dateObj = new Date();
+					    consoleOutput.add(df.format(dateObj) + r);
+				    } catch(Exception p){
+					    consoleOutput.add("OI! That's not a proper date String! Try inputting a date String!" + r);
+				    }
+				    break;
+			    case "/if":
+				    try{
+					    String[] num = args[0].split("[<=>]+");
+					    String operator = args[0].split("\\d+")[1];
+					    int var1 = Integer.parseInt(num[0]);
+					    int var2 = Integer.parseInt(num[1]);
+					    String trueCommand = args[1];
+					    String falseCommand;
+					    try{
+						    falseCommand = args[2];
+					    } catch(ArrayIndexOutOfBoundsException e){
+						    falseCommand = "\u0002";
+					    }
+					    switch(operator){
+						    case "=":
+							    if(var1 == var2){
+								    doCommand(trueCommand, startDepth);
+							    } else {
+								    doCommand(falseCommand, startDepth);
+							    }
+							    break;
 
-        } else if (input.startsWith("/loop:")) {
-            String[] vars;
-            vars = new String[2];
-            vars = input.replaceFirst(":", "\u0000").split("\u0000")[1].split(",");
-            try{
-                int var1 = Integer.parseInt(vars[0]);
-                String cmd = vars[1];
-                for(int x = 2; x < vars.length; x++){
-                    cmd += ","+vars[x];
-                }
+						    case "<":
+							    if(var1 < var2){
+								    doCommand(trueCommand, startDepth);
+							    } else {
+								    doCommand(falseCommand, startDepth);
+							    }
+							    break;
 
-                while(var1 != 0){
-                    var1--;
-                    parseInput(cmd,console,null);
-                }
-            }catch (Exception p){
-                console.append("OI! There is an error with your loop statement!" + r);
-            }
+						    case ">":
+							    if(var1 > var2){
+								    doCommand(trueCommand, startDepth);
+							    } else {
+								    doCommand(falseCommand, startDepth);
+							    }
+							    break;
 
-        }else if (input.startsWith("/for:")) {
-            try{
-            String[] vars;
-            vars = new String[4];
-            vars = input.replaceFirst(":", "\u0000").split("\u0000")[1].split(",");
-                int var2 = Integer.parseInt(vars[1]);
-                int var3 =  Integer.parseInt(vars[2]);
-                String cmd = vars[3];
-                for (int var1 = Integer.parseInt(vars[0]); var1 < var2; var1 += var3) {
-                    parseInput(cmd, console, null);
-                }
-            } catch (Exception p) {
-                console.append("OI! There is an error with your for statement!" + r);
-            }
+						    case "<=":
+							    if(var1 <= var2){
+								    doCommand(trueCommand, startDepth);
+							    } else {
+								    doCommand(falseCommand, startDepth);
+							    }
+							    break;
 
-        }else if (input.startsWith("/gettime:")) {
-            String var = input.substring(input.indexOf(":") + 1).trim();
-            try {
-                DateFormat df = new SimpleDateFormat(var);
-                Date dateobj = new Date();
-                console.append(df.format(dateobj) + r);
-            }catch (Exception p){
-                console.append("OI! That's not a proper date String! Try inputting a date String!" + r);
-            }
-        }else if(input.startsWith("/if:")) {
-            String[] vars;
-            vars = new String[4];
-            vars = input.replaceFirst(":", "\u0000").split("\u0000")[1].split(",");
-
-            try {
-                int var1 = Integer.parseInt(vars[0]);
-                int var2 = Integer.parseInt(vars[1]);
-                String operator = vars[2];
-                String cmd = vars[3];
-                for (int x = 4; x < vars.length; x++) {
-                    cmd += "," + vars[x];
-                }
-                int x = 0, depth = 0;
-                String temp = "";
-                MultiCommand condition1 = new MultiCommand(), condition2 = new MultiCommand();
-                boolean onCondition2 = false, escape = false;
-                try{
-                    while (x < cmd.length()) {
-                        char y = cmd.charAt(x++);
-                        System.out.println("Processing char: "+y);
-                        switch (y) {
-                            case '(':
-                                if (++depth != 1) {
-                                    temp += y;
-                                }
-                                break;
-                            case ')':
-                                if (depth-- != 1) {
-                                    temp += y;
-                                } else {
-                                    if (onCondition2) {
-                                        condition2.put(temp);
-                                        System.out.println("Put command " + temp + " in condition 2");
-                                        temp = "";
-                                    } else {
-                                        condition1.put(temp);
-                                        System.out.println("Put command " + temp + " in condition 1");
-                                        temp = "";
-                                    }
-                                }
-                                break;
-                            case ',':
-                                if (depth == 0) {
-                                    onCondition2 = true;
-                                    System.out.println("Switched condition");
-                                } else {
-                                    temp += y;
-                                }
-                                break;
-                            case '\\':
-                                if(!escape){
-                                    if (depth == 1) {
-                                        escape = true;
-                                    } else {
-                                        temp += y;
-                                    }
-                                } else {
-                                    temp += y;
-                                }
-                                break;
-                            case '&':
-                                if(!escape && depth == 1){
-                                    if(onCondition2){
-                                        condition2.put(temp);
-                                        temp = "";
-                                    } else {
-                                        condition1.put(temp);
-                                        temp = "";
-                                    }
-                                } else {
-                                    escape = false;
-                                    temp += y;
-                                }
-                                break;
-                            default:
-                                temp += y;
-                            break;
-                        }
-                    }
-                    if(depth != 0){
-                        throw new ArrayIndexOutOfBoundsException();
-                    }
-                } catch(ArrayIndexOutOfBoundsException e){
-                    console.append("OI! You didn't close your conditions on your if statements" + r);
-                }
-                switch(operator){
-                    case "=":
-                    if(var1 == var2){
-                        condition1.run(console);
-                    } else {
-                        condition2.run(console);
-                    }
-                    break;
-
-                    case "<":
-                    if(var1 < var2){
-                        condition1.run(console);
-                    } else {
-                        condition2.run(console);
-                    }
-                    break;
-
-                    case ">":
-                    if(var1 > var2){
-                        condition1.run(console);
-                    } else {
-                        condition2.run(console);
-                    }
-                    break;
-
-                    case "<=":
-                    if(var1 <= var2){
-                        condition1.run(console);
-                    } else {
-                        condition2.run(console);
-                    }
-                    break;
-
-                    case ">=":
-                   if(var1 >= var2){
-                       condition1.run(console);
-                   } else {
-                       condition2.run(console);
-                   }
-                    break;
-                }
-            }catch (Exception p){
-                console.append("OI! There is an error with your if statement!" + r);
-            }
-        }else{
-            console.append("OI! Command not valid!" + r);
-        }
+						    case ">=":
+							    if(var1 >= var2){
+								    doCommand(trueCommand, startDepth);
+							    } else {
+								    doCommand(falseCommand, startDepth);
+							    }
+							    break;
+					    }
+				    } catch(Exception p){
+					    consoleOutput.add("OI! There is an error with your if statement!" + r);
+					    p.printStackTrace();
+				    }
+				    break;
+			    case "\u0002":
+				    break;
+			    default:
+				    consoleOutput.add("OI! Command not valid!" + r);
+		    }
+	    } catch(ArrayIndexOutOfBoundsException e){
+		    consoleOutput.add("OI! A command didn't have the right number of arguments!" + r);
+	    }
     }
 }

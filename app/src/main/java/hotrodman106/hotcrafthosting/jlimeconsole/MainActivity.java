@@ -1,7 +1,11 @@
 package hotrodman106.hotcrafthosting.jlimeconsole;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
@@ -18,6 +22,8 @@ public class MainActivity extends ActionBarActivity{
     public static EditText input;
     public static Intent i;
 
+	private String code = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +36,23 @@ public class MainActivity extends ActionBarActivity{
                     .commit();
         }
     }
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data){
+		code = data.getStringExtra("code");
+		if(code == null){
+			return;
+		}
+		switch(resultCode){
+			case 0:
+				for(String s : code.split("\r")){
+					CommandParser.inputCommand(s, console, false);
+				}
+				break;
+			default:
+				break;
+		}
+	}
 
 
     @Override
@@ -49,13 +72,14 @@ public class MainActivity extends ActionBarActivity{
 
         switch (id) {
             case R.id.limeEdit:
-                Intent launchactivity= new Intent(MainActivity.this,EditorClass.class);
-                startActivity(launchactivity);
+                Intent launchActivity= new Intent(MainActivity.this,EditorClass.class);
+				launchActivity.putExtra("code", code);
+                startActivityForResult(launchActivity, 0);
                 overridePendingTransition(R.anim.right_in, R.anim.left_out);
                 return true;
             case R.id.settings:
-                Intent launchactivity2 = new Intent(MainActivity.this,SettingsActivity.class);
-                startActivity(launchactivity2);
+                Intent launchActivity2 = new Intent(MainActivity.this,SettingsActivity.class);
+                startActivity(launchActivity2);
                 overridePendingTransition(R.anim.left_in, R.anim.right_out);
                 return true;
             default:
@@ -76,6 +100,35 @@ public class MainActivity extends ActionBarActivity{
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             console = (EditText) rootView.findViewById(R.id.editText);
             input = (EditText) rootView.findViewById(R.id.editText2);
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            int rB = sharedPrefs.getInt("R_background_preference", 0);
+            int gB = sharedPrefs.getInt("G_background_preference", 0);
+            int bB = sharedPrefs.getInt("B_background_preference", 0);
+            int rF = sharedPrefs.getInt("R_font_preference", 0);
+            int gF = sharedPrefs.getInt("G_font_preference", 255);
+            int bF = sharedPrefs.getInt("B_font_preference", 0);
+            String font = sharedPrefs.getString("type_font_preference", "1");
+
+            MainActivity.console.setBackgroundColor(Color.rgb(rB, gB, bB));
+            MainActivity.console.setTextColor(Color.rgb(rF,gF,bF));
+            switch(font) {
+                case "1":
+                    MainActivity.console.setTypeface(Typeface.DEFAULT);
+                    break;
+                case "2":
+                    MainActivity.console.setTypeface(Typeface.DEFAULT_BOLD);
+                    break;
+                case "3":
+                    MainActivity.console.setTypeface(Typeface.MONOSPACE);
+                    break;
+                case "4":
+                    MainActivity.console.setTypeface(Typeface.SANS_SERIF);
+                    break;
+                case "5":
+                    MainActivity.console.setTypeface(Typeface.SERIF);
+                    break;
+                default:
+            }
             input.setOnKeyListener(new OnKeyListener()
             {
                 public boolean onKey(View v, int keyCode, KeyEvent event)
@@ -105,7 +158,7 @@ public class MainActivity extends ActionBarActivity{
 
     public static void submit(View view) {
         if (!input.getText().toString().equals("")) {
-            CommandParser.parseInput(input.getText().toString(), console, view);
+            CommandParser.inputCommand(input.getText().toString(), console, true);
             input.setText("");
         }
     }
