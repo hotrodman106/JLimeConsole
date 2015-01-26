@@ -1,5 +1,6 @@
 package hotrodman106.hotcrafthosting.jlimeconsole;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -17,10 +18,13 @@ import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import java.io.IOException;
+
 public class MainActivity extends ActionBarActivity{
     public static EditText console;
     public static EditText input;
     public static Intent i;
+	public static Activity activity;
 
 	private String code = null;
 
@@ -35,6 +39,12 @@ public class MainActivity extends ActionBarActivity{
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+		activity = this;
+		try{
+			ModuleManager.init(getDir("Modules", MODE_APPEND));
+		} catch(IOException e){
+			e.printStackTrace();
+		}
     }
 
 	@Override
@@ -60,6 +70,24 @@ public class MainActivity extends ActionBarActivity{
         return true;
 
     }
+
+	public static void setForeground(int R, int G, int B){
+		console.setTextColor(0xFF000000|R<<16|G<<8|B);
+	}
+	public static void setBackground(int R, int G, int B){
+		console.setBackgroundColor(0xFF000000|R<<16|G<<8|B);
+	}
+	public static void resetColors(){
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(activity);
+		int rB = sharedPrefs.getInt("R_background_preference", 0);
+		int gB = sharedPrefs.getInt("G_background_preference", 0);
+		int bB = sharedPrefs.getInt("B_background_preference", 0);
+		int rF = sharedPrefs.getInt("R_font_preference", 0);
+		int gF = sharedPrefs.getInt("G_font_preference", 255);
+		int bF = sharedPrefs.getInt("B_font_preference", 0);
+		setForeground(rF, gF, bF);
+		setBackground(rB, gB, bB);
+	}
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -90,7 +118,6 @@ public class MainActivity extends ActionBarActivity{
 
         public PlaceholderFragment() {
         }
-
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
