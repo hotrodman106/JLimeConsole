@@ -7,4 +7,10 @@
     <item android:id="@+id/settings"
         android:icon="@drawable/ic_launcher"
         android:title="Settings" />
+    <item android:id="@+id/addModule"
+          android:icon="@drawable/ic_launcher"
+          android:title="Add Module" />
+    <item android:id="@+id/removeModule"
+          android:icon="@drawable/ic_launcher"
+          android:title="Remove Module" />
 </menu>
