@@ -1,12 +1,10 @@
 package hotrodman106.hotcrafthosting.jlimeconsole;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -22,12 +20,11 @@ import java.util.jar.JarFile;
  * @author Coolway99 (xxcoolwayxx@gmail.com)
  */
 public class ModuleManager{
-	private static final HashMap<String, Method> moduleList = new HashMap<>();
-	private static final HashMap<String, File> fileList = new HashMap<>();
-	private static File moduleDirectory;
+	private static HashMap<String, Method> methodList = new HashMap<>();
+	private static HashMap<File, ArrayList<String>> fileList = new HashMap<>();
 
 	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.METHOD)
+	@Target(ElementType.TYPE)
 	public static @interface Module{}
 
 	@Retention(RetentionPolicy.RUNTIME)
@@ -36,100 +33,64 @@ public class ModuleManager{
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
-	public static @interface CommandParser{}
+	public static @interface Parser{}
 
-	public static void init(File directory) throws IOException{
-		moduleDirectory = directory;
-		for(File file : moduleDirectory.listFiles()){
-			JarFile jarFile = new JarFile(file);
-			Enumeration<JarEntry> entries = jarFile.entries();
-			Class modClass = null;
-			URLClassLoader loader = new URLClassLoader(new URL[]{file.toURI().toURL()},
-					ModuleManager.class.getClassLoader());
-			while(entries.hasMoreElements()){
-				JarEntry entry = entries.nextElement();
-				if(entry.getName().endsWith(".class")){
-					try{
-						Class tempClass = Class.forName(entry.getName().substring(0,
-								entry.getName().lastIndexOf(".class")), true, loader);
-						if(tempClass.getAnnotation(Module.class) != null){
-							modClass = tempClass;
-							break;
-						}
-					} catch(ClassNotFoundException e){
-						e.printStackTrace();
-					}
-				}
-			}
-			if(modClass != null){
-				String name = null;
-				Method commandParser = null;
-				for(Method method : modClass.getMethods()){
-					try{
-						if(method.getAnnotation(ModInit.class) != null){
-							name = (String) method.invoke(null);
-						}
-						if(method.getAnnotation(CommandParser.class) != null){
-							commandParser = method;
-						}
-						if(name != null && commandParser != null){
-							moduleList.put(name, commandParser);
-							fileList.put(name, file);
-						}
-					} catch(IllegalAccessException | InvocationTargetException e){
-						break;
-					}
-				}
-			}
+
+	public static void init(File directory){
+		for(File file : directory.listFiles()){
+			add(file);
 		}
 	}
-	public static void add(File file) throws IOException{
+	public static void add(File file){
+		try{
+			fileList.put(file, new ArrayList<String>());
+			URLClassLoader loader = URLClassLoader.newInstance(new URL[]{file.toURI().toURL()},
+					ModuleManager.class.getClassLoader());
+			Class<?> clazz = null;
 			JarFile jarFile = new JarFile(file);
 			Enumeration<JarEntry> entries = jarFile.entries();
-			Class modClass = null;
-			URLClassLoader loader = URLClassLoader.newInstance(new URL[]{file.toURI().toURL()});
-			while(entries.hasMoreElements()){
+			while (entries.hasMoreElements()) {
 				JarEntry entry = entries.nextElement();
-				if(entry.getName().endsWith(".class")){
-					try{
-						Class tempClass = Class.forName(entry.getName().substring(0,
-								entry.getName().lastIndexOf(".class")), true, loader);
-						if(tempClass.getAnnotation(Module.class) != null){
-							modClass = tempClass;
-							break;
+				if (entry.getName().endsWith(".class")) {
+					String name = entry.getName();
+					name = name.substring(0, name.lastIndexOf(".class"))
+							.replaceAll("/", ".");
+					if (loader == null) {
+						clazz = Class.forName(name);
+					} else {
+						clazz = Class.forName(name, true, loader);
+					}
+					if(clazz.getAnnotation(ModuleManager.Module.class) != null){
+						String modName = null;
+						Method modMethod = null;
+						for(Method method : clazz.getMethods()){
+							if(method.getAnnotation(ModInit.class) != null){
+								modName = (String) method.invoke(null);
+							}
+							if(method.getAnnotation(Parser.class) != null){
+								modMethod = method;
+							}
+							if(modName != null && modMethod != null){
+								methodList.put(modName, modMethod);
+								fileList.get(file).add(modName);
+								break;
+							}
 						}
-					} catch(ClassNotFoundException e){
 					}
 				}
 			}
-		if(modClass != null){
-			String name = null;
-			Method commandParser = null;
-			for(Method method : modClass.getMethods()){
-				try{
-					if(method.getAnnotation(ModInit.class) != null){
-						name = (String) method.invoke(null);
-					}
-					if(method.getAnnotation(CommandParser.class) != null){
-						commandParser = method;
-					}
-					if(name != null && commandParser != null){
-						moduleList.put(name, commandParser);
-					}
-				} catch(IllegalAccessException | InvocationTargetException e){
-					break;
-				}
+			if(fileList.get(file).isEmpty()){
+				fileList.remove(file);
 			}
+			jarFile.close();
+		} catch(Exception e){
+			e.printStackTrace();
 		}
 	}
 	public static int run(ArrayList<String> modules, String cmd, String[] args, int startDepth, ArrayList<String> consoleOutput){
 		try{
 			for(String key : modules){
-				Method method = moduleList.get(key);
-				if(method == null){
-					consoleOutput.add("OI! One of your modules doesn't exist\n");
-					return -2;
-				}
+				Method method = methodList.get(key);
 				int y = (int) method.invoke(null, cmd, args, startDepth, consoleOutput);
 				if(y != -3){
 					return y;
@@ -141,14 +102,16 @@ public class ModuleManager{
 		consoleOutput.add("OI! Command not valid!\n");
 		return -2;
 	}
-	public static void remove(String key){
-		moduleList.remove(key);
-		fileList.remove(key).delete();
-	}
 	public static String[] getList(){
-		return moduleList.keySet().toArray(new String[0]);
+		return methodList.keySet().toArray(new String[0]);
 	}
 	public static File[] getFiles(){
-		return fileList.values().toArray(new File[0]);
+		return fileList.keySet().toArray(new File[0]);
+	}
+	public static void remove(File file){
+		for(String name : fileList.get(file)){
+			methodList.remove(name);
+		}
+		fileList.remove(file);
 	}
 }

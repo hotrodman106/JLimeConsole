@@ -200,6 +200,17 @@ public class CommandParser{
 		return parseInput(cmd, null, startDepth);
 	}
 
+	public static String[] parseArgs(String[] args, int offset, int length, int startDepth,
+			ArrayList<String> consoleOutput){
+		for(int x = offset; x < length; x++){
+			if(args[x].contains("\u0005")){
+				CommandParser.doCommand(args[x], startDepth);
+				args[x] = consoleOutput.remove(consoleOutput.size()-1);
+			}
+		}
+		return args;
+	}
+
 	private static int getOut(String code, int startDepth){
 		int intCode = Integer.parseInt(code.substring(code.indexOf('\u0005')+1, code.indexOf('\u0006')));
 		return getOut(intCode, startDepth);
@@ -364,21 +375,15 @@ public class CommandParser{
 		    switch(cmd){
 			    case "/echo":
 				    String out = "";
+				    args = parseArgs(args, 0, args.length, startDepth, consoleOutput);
 				    for(int x = 0; x < args.length; x++){
-					    if(args[x].contains("\u0005")){
-						    doCommand(args[x], startDepth);
-						    args[x] = consoleOutput.remove(consoleOutput.size() - 1);
-					    }
 					    out += args[x];
 				    }
 				    consoleOutput.add(out + r);
 				    break;
 			    case "/random":
 				    try{
-					    if(args[0].contains("\u0005")){
-						    doCommand(args[0], startDepth);
-						    args[0] = consoleOutput.remove(consoleOutput.size()-1);
-					    }
+					    args = parseArgs(args, 0, 1, startDepth, consoleOutput);
 					    int var = Integer.parseInt(args[0].trim());
 					    Random random = new Random();
 					    consoleOutput.add(random.nextInt(var) + r);
@@ -389,10 +394,7 @@ public class CommandParser{
 				    break;
 			    case "/loop":
 				    try{
-					    if(args[0].contains("\u0005")){
-						    doCommand(args[0], startDepth);
-						    args[0] = consoleOutput.remove(consoleOutput.size()-1);
-					    }
+					    args = parseArgs(args, 0, 1, startDepth, consoleOutput);
 					    int var1 = Integer.parseInt(args[0].trim());
 					    String command = args[1];
 					    while(var1 != 0){
@@ -406,18 +408,7 @@ public class CommandParser{
 				    break;
 			    case "/for":
 				    try{
-					    if(args[0].contains("\u0005")){
-						    doCommand(args[0], startDepth);
-						    args[0] = consoleOutput.remove(consoleOutput.size()-1);
-					    }
-					    if(args[1].contains("\u0005")){
-						    doCommand(args[1], startDepth);
-						    args[1] = consoleOutput.remove(consoleOutput.size()-1);
-					    }
-					    if(args[2].contains("\u0005")){
-						    doCommand(args[2], startDepth);
-						    args[2] = consoleOutput.remove(consoleOutput.size()-1);
-					    }
+						args = parseArgs(args, 0, 3, startDepth, consoleOutput);
 					    int var2 = Integer.parseInt(args[1].trim());
 					    int var3 = Integer.parseInt(args[2].trim());
 					    String command = args[3];
@@ -431,21 +422,20 @@ public class CommandParser{
 				    break;
 			    case "/String":
 				    try{
-					    if(args[0].contains("\u0005")){
-						    doCommand(args[0], startDepth);
-						    args[0] = consoleOutput.remove(consoleOutput.size()-1);
-					    }
-					    if(args[1].contains("\u0005")){
-						    doCommand(args[1], startDepth);
-						    args[1] = consoleOutput.remove(consoleOutput.size()-1);
-					    }
+						args = parseArgs(args, 0, 2, startDepth, consoleOutput);
 					    String name = args[0];
 					    String string = args[1];
+						Boolean verbose = false;
+						if(args.length > 2){
+							verbose = Boolean.parseBoolean(args[2].trim());
+						}
 
 					    booleanList.remove(name);
 					    intList.remove(name);
 					    stringList.put(name, string);
-					    consoleOutput.add("String " + name + " set to " + string + r);
+						if(verbose){
+						    consoleOutput.add("String " + name + " set to " + string + r);
+						}
 				    } catch(Exception p){
 					    consoleOutput.add("OI! There is an error with your String declaration statement!" + r);
 					    return -2;
@@ -453,21 +443,20 @@ public class CommandParser{
 				    break;
 			    case "/Int":
 				    try{
-					    if(args[0].contains("\u0005")){
-						    doCommand(args[0], startDepth);
-						    args[0] = consoleOutput.remove(consoleOutput.size()-1);
-					    }
-					    if(args[1].contains("\u0005")){
-						    doCommand(args[1], startDepth);
-						    args[1] = consoleOutput.remove(consoleOutput.size()-1);
-					    }
+						args = parseArgs(args, 0, 2, startDepth, consoleOutput);
+						Boolean verbose = false;
+						if(args.length > 2){
+							verbose = Boolean.parseBoolean(args[2].trim());
+						}
 					    String name = args[0];
 					    int integer = Integer.parseInt(args[1].trim());
 
 					    booleanList.remove(name);
 					    stringList.remove(name);
 					    intList.put(name, integer);
-					    consoleOutput.add("Integer " + name + " set to " + integer + r);
+					    if(verbose){
+						    consoleOutput.add("Integer " + name + " set to " + integer + r);
+					    }
 				    } catch(Exception p){
 					    consoleOutput.add("OI! There is an error with your Integer declaration statement!" + r);
 					    return -2;
@@ -475,21 +464,20 @@ public class CommandParser{
 				    break;
 			    case "/Boolean":
 				    try{
-					    if(args[0].contains("\u0005")){
-						    doCommand(args[0], startDepth);
-						    args[0] = consoleOutput.remove(consoleOutput.size()-1);
-					    }
-					    if(args[1].contains("\u0005")){
-						    doCommand(args[1], startDepth);
-						    args[1] = consoleOutput.remove(consoleOutput.size()-1);
-					    }
+						args = parseArgs(args, 0, 2, startDepth, consoleOutput);
+						Boolean verbose = false;
+						if(args.length > 2){
+							verbose = Boolean.parseBoolean(args[2].trim());
+						}
 					    String name = args[0];
 					    boolean b = Boolean.parseBoolean(args[1].trim());
 
 					    stringList.remove(name);
 					    intList.remove(name);
 					    booleanList.put(name, b);
-					    consoleOutput.add("Boolean " + name + " set to " + b + r);
+						if(verbose){
+							consoleOutput.add("Boolean " + name + " set to " + b + r);
+						}
 				    } catch(Exception p){
 					    consoleOutput.add("OI! There is an error with your Boolean declaration statement!" + r);
 					    return -2;
@@ -497,10 +485,7 @@ public class CommandParser{
 				    break;
 			    case "/getTime":
 				    try{
-					    if(args[0].contains("\u0005")){
-						    doCommand(args[0], startDepth);
-						    args[0] = consoleOutput.remove(consoleOutput.size()-1);
-					    }
+						args = parseArgs(args, 0, 1, startDepth, consoleOutput);
 					    DateFormat df = new SimpleDateFormat(args[0]);
 					    Date dateObj = new Date();
 					    consoleOutput.add(df.format(dateObj) + r);
@@ -511,21 +496,18 @@ public class CommandParser{
 				    break;
 			    case "/if":
 				    try{
-					    if(args[0].contains("\u0005")){
-						    doCommand(args[0], startDepth);
-						    args[0] = consoleOutput.remove(consoleOutput.size()-1);
-					    }
-					    String[] num = args[0].split("[<=>]+");
-					    String operator = args[0].split("\\d+")[1];
-					    int var1 = Integer.parseInt(num[0]);
-					    int var2 = Integer.parseInt(num[1]);
-					    String trueCommand = args[1];
-					    String falseCommand;
-					    try{
-						    falseCommand = args[2];
-					    } catch(ArrayIndexOutOfBoundsException e){
-						    falseCommand = "\u0002";
-					    }
+						args = parseArgs(args, 0, 1, startDepth, consoleOutput);
+						String[] num = args[0].split("[<=>]+");
+						String operator = args[0].split("\\d+")[1];
+						int var1 = Integer.parseInt(num[0]);
+						int var2 = Integer.parseInt(num[1]);
+						String trueCommand = args[1];
+						String falseCommand;
+						try{
+							falseCommand = args[2];
+						} catch(ArrayIndexOutOfBoundsException e){
+							falseCommand = "\u0002";
+						}
 					    switch(operator){
 						    case "==":
 						    case "=":
@@ -570,15 +552,12 @@ public class CommandParser{
 					    consoleOutput.add("OI! There is an error with your if statement!" + r);
 					    return -2;
 					}
-				case "::":
+				case ";;":
 				case "\u0002":
 					break;
 				case "/goto":
 					try{
-						if(args[0].contains("\u0005")){
-							doCommand(args[0], startDepth);
-							args[0] = consoleOutput.remove(consoleOutput.size()-1);
-						}
+						args = parseArgs(args, 0, 1, startDepth, consoleOutput);
 						int x = Integer.parseInt(args[0].trim());
 						if(x < 0){
 							consoleOutput.add("OI! There is no such thing as a negative line!" + r);

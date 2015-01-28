@@ -18,8 +18,6 @@ import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
-import java.io.IOException;
-
 public class MainActivity extends ActionBarActivity{
     public static EditText console;
     public static EditText input;
@@ -40,11 +38,7 @@ public class MainActivity extends ActionBarActivity{
                     .commit();
         }
 		activity = this;
-		try{
-			ModuleManager.init(getDir("Modules", MODE_APPEND));
-		} catch(IOException e){
-			e.printStackTrace();
-		}
+		ModuleManager.init(getDir("Modules", MODE_APPEND));
     }
 
 	@Override
